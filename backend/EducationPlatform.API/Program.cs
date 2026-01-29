@@ -6,6 +6,7 @@ using System.Text;
 using EducationPlatform.Infrastructure.Data;
 using EducationPlatform.API.Services;
 using EducationPlatform.API.Middleware;
+using EducationPlatform.API.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,7 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+    c.OperationFilter<FileUploadOperationFilter>();
 });
 
 // Configure Database
@@ -107,6 +109,7 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

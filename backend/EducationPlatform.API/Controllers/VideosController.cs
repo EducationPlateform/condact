@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EducationPlatform.Infrastructure.Data;
@@ -49,11 +50,20 @@ public class VideosController : BaseController
 
     [HttpPost("upload")]
     [Authorize(Roles = "Teacher,Admin")]
-    public async Task<IActionResult> Upload([FromForm] IFormFile video, [FromForm] string lectureId)
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<VideoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Upload([FromForm] string lectureId)
     {
         if (!Guid.TryParse(lectureId, out var id))
         {
             return Error("Invalid lecture ID");
+        }
+
+        var video = Request.Form.Files.GetFile("video");
+        if (video == null || video.Length == 0)
+        {
+            return Error("No video file provided");
         }
 
         var lecture = await _context.Lectures.FindAsync(id);
@@ -137,6 +147,8 @@ public class VideosController : BaseController
 
     [HttpGet("{id}/stream")]
     [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces("video/mp4")]
     public async Task<IActionResult> Stream(string id)
     {
         if (!Guid.TryParse(id, out var videoId))
@@ -243,6 +255,8 @@ public class VideosController : BaseController
 
     [HttpGet("{id}/manifest.m3u8")]
     [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces("application/vnd.apple.mpegurl")]
     public async Task<IActionResult> GetHlsManifest(string id)
     {
         if (!Guid.TryParse(id, out var videoId))
@@ -283,6 +297,8 @@ public class VideosController : BaseController
 
     [HttpGet("{id}/manifest.mpd")]
     [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces("application/dash+xml")]
     public async Task<IActionResult> GetDashManifest(string id)
     {
         if (!Guid.TryParse(id, out var videoId))
