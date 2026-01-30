@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Box,
   Typography,
   Paper,
   Table,
@@ -11,13 +10,13 @@ import {
   TableRow,
   IconButton,
   Chip,
-} from '@mui/material';
-import { Delete } from '@mui/icons-material';
-import Layout from '../../components/common/Layout';
-import Loading from '../../components/common/Loading';
-import { userService } from '../../services/userService';
-import api from '../../services/api';
-import { User } from '../../types/api';
+} from "@mui/material";
+import { Delete } from "@mui/icons-material";
+import Layout from "../../components/common/Layout";
+import Loading from "../../components/common/Loading";
+import { userService } from "../../services/userService";
+import api from "../../services/api";
+import { User } from "../../types/api";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -29,7 +28,7 @@ const UserManagement: React.FC = () => {
         const data = await userService.getAll();
         setUsers(data);
       } catch (error) {
-        console.error('Failed to fetch users:', error);
+        console.error("Failed to fetch users:", error);
       } finally {
         setLoading(false);
       }
@@ -39,13 +38,13 @@ const UserManagement: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await api.delete(`/users/${id}`);
         setUsers(users.filter((u) => u._id !== id));
       } catch (error) {
-        console.error('Failed to delete user:', error);
-        alert('Failed to delete user');
+        console.error("Failed to delete user:", error);
+        alert("Failed to delete user");
       }
     }
   };
@@ -60,14 +59,14 @@ const UserManagement: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin':
-        return 'error';
-      case 'teacher':
-        return 'primary';
-      case 'student':
-        return 'success';
+      case "admin":
+        return "error";
+      case "teacher":
+        return "primary";
+      case "student":
+        return "success";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -92,13 +91,17 @@ const UserManagement: React.FC = () => {
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  <Chip label={user.role} color={getRoleColor(user.role)} size="small" />
+                  <Chip
+                    label={user.role}
+                    color={getRoleColor(user.role)}
+                    size="small"
+                  />
                 </TableCell>
                 <TableCell align="right">
                   <IconButton
                     color="error"
                     onClick={() => handleDelete(user._id)}
-                    disabled={user.role === 'admin'}
+                    disabled={user.role === "admin"}
                   >
                     <Delete />
                   </IconButton>

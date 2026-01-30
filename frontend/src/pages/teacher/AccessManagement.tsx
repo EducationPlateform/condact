@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,28 +10,25 @@ import {
   Select,
   MenuItem,
   Grid,
-  Card,
-  CardContent,
   Alert,
-} from '@mui/material';
-import { VpnKey, Add } from '@mui/icons-material';
-import Layout from '../../components/common/Layout';
-import { accessService } from '../../services/accessService';
-import { lectureService } from '../../services/lectureService';
-import { groupService } from '../../services/groupService';
-import { userService } from '../../services/userService';
-import { Lecture, Group, User } from '../../types/api';
-import api from '../../services/api';
+} from "@mui/material";
+import { VpnKey, Add } from "@mui/icons-material";
+import Layout from "../../components/common/Layout";
+import { accessService } from "../../services/accessService";
+import { lectureService } from "../../services/lectureService";
+import { groupService } from "../../services/groupService";
+import { Lecture, Group, User } from "../../types/api";
+import api from "../../services/api";
 
 const AccessManagement: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [students, setStudents] = useState<User[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState('');
-  const [selectedLecture, setSelectedLecture] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedLecture, setSelectedLecture] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
   const [maxViews, setMaxViews] = useState(3);
-  const [generatedCode, setGeneratedCode] = useState('');
+  const [generatedCode, setGeneratedCode] = useState("");
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -39,7 +36,7 @@ const AccessManagement: React.FC = () => {
         const data = await groupService.getAll();
         setGroups(data);
       } catch (error) {
-        console.error('Failed to fetch groups:', error);
+        console.error("Failed to fetch groups:", error);
       }
     };
     fetchGroups();
@@ -55,7 +52,7 @@ const AccessManagement: React.FC = () => {
         const data = await lectureService.getByGroup(selectedGroup);
         setLectures(data);
       } catch (error) {
-        console.error('Failed to fetch lectures:', error);
+        console.error("Failed to fetch lectures:", error);
       }
     };
     fetchLectures();
@@ -64,12 +61,12 @@ const AccessManagement: React.FC = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await api.get('/users/role/student');
+        const response = await api.get("/users/role/student");
         if (response.data.success && response.data.data) {
           setStudents(response.data.data);
         }
       } catch (error) {
-        console.error('Failed to fetch students:', error);
+        console.error("Failed to fetch students:", error);
       }
     };
     fetchStudents();
@@ -77,33 +74,40 @@ const AccessManagement: React.FC = () => {
 
   const handleGrantAccess = async () => {
     if (!selectedStudent || !selectedLecture) {
-      alert('Please select a student and lecture');
+      alert("Please select a student and lecture");
       return;
     }
 
     try {
-      await accessService.grantAccess(selectedStudent, selectedLecture, maxViews);
-      alert('Access granted successfully');
-      setSelectedStudent('');
-      setSelectedLecture('');
+      await accessService.grantAccess(
+        selectedStudent,
+        selectedLecture,
+        maxViews,
+      );
+      alert("Access granted successfully");
+      setSelectedStudent("");
+      setSelectedLecture("");
     } catch (error) {
-      console.error('Failed to grant access:', error);
-      alert('Failed to grant access');
+      console.error("Failed to grant access:", error);
+      alert("Failed to grant access");
     }
   };
 
   const handleGenerateCode = async () => {
     if (!selectedLecture) {
-      alert('Please select a lecture');
+      alert("Please select a lecture");
       return;
     }
 
     try {
-      const result = await accessService.generateCode(selectedLecture, maxViews);
+      const result = await accessService.generateCode(
+        selectedLecture,
+        maxViews,
+      );
       setGeneratedCode(result.code);
     } catch (error) {
-      console.error('Failed to generate code:', error);
-      alert('Failed to generate access code');
+      console.error("Failed to generate code:", error);
+      alert("Failed to generate access code");
     }
   };
 
@@ -119,7 +123,7 @@ const AccessManagement: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Grant Access to Student
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Group</InputLabel>
                 <Select
@@ -127,7 +131,7 @@ const AccessManagement: React.FC = () => {
                   label="Group"
                   onChange={(e) => {
                     setSelectedGroup(e.target.value);
-                    setSelectedLecture('');
+                    setSelectedLecture("");
                   }}
                 >
                   {groups.map((group) => (
@@ -194,7 +198,7 @@ const AccessManagement: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Generate Access Code
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Group</InputLabel>
                 <Select
@@ -202,7 +206,7 @@ const AccessManagement: React.FC = () => {
                   label="Group"
                   onChange={(e) => {
                     setSelectedGroup(e.target.value);
-                    setSelectedLecture('');
+                    setSelectedLecture("");
                   }}
                 >
                   {groups.map((group) => (
@@ -250,7 +254,10 @@ const AccessManagement: React.FC = () => {
               {generatedCode && (
                 <Alert severity="success" sx={{ mt: 2 }}>
                   <Typography variant="h6">Access Code:</Typography>
-                  <Typography variant="h5" sx={{ fontFamily: 'monospace', mt: 1 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontFamily: "monospace", mt: 1 }}
+                  >
                     {generatedCode}
                   </Typography>
                 </Alert>

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Paper } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
-import Layout from '../../components/common/Layout';
-import Loading from '../../components/common/Loading';
-import SecureVideoPlayer from '../../components/video/SecureVideoPlayer';
-import { lectureService } from '../../services/lectureService';
-import { videoService } from '../../services/videoService';
-import { accessService } from '../../services/accessService';
-import { Lecture, Video, StudentAccess } from '../../types/api';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Typography, Button, Paper } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import Layout from "../../components/common/Layout";
+import Loading from "../../components/common/Loading";
+import SecureVideoPlayer from "../../components/video/SecureVideoPlayer";
+import { lectureService } from "../../services/lectureService";
+import { videoService } from "../../services/videoService";
+import { accessService } from "../../services/accessService";
+import { Lecture, Video, StudentAccess } from "../../types/api";
 
 const VideoViewer: React.FC = () => {
   const { lectureId } = useParams<{ lectureId: string }>();
@@ -28,7 +28,9 @@ const VideoViewer: React.FC = () => {
 
         if (lectureData.videoId) {
           const videoData = await videoService.getById(
-            typeof lectureData.videoId === 'string' ? lectureData.videoId : lectureData.videoId._id
+            typeof lectureData.videoId === "string"
+              ? lectureData.videoId
+              : lectureData.videoId._id,
           );
           setVideo(videoData);
         }
@@ -40,7 +42,7 @@ const VideoViewer: React.FC = () => {
           // No access yet
         }
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        console.error("Failed to fetch data:", error);
       } finally {
         setLoading(false);
       }
@@ -55,7 +57,7 @@ const VideoViewer: React.FC = () => {
       const accessData = await accessService.checkAccess(lectureId);
       setAccess(accessData);
     } catch (err) {
-      console.error('Failed to refresh access:', err);
+      console.error("Failed to refresh access:", err);
     }
   };
 

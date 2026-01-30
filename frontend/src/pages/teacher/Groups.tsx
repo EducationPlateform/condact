@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -12,20 +12,19 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Alert,
-} from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
-import Layout from '../../components/common/Layout';
-import Loading from '../../components/common/Loading';
-import { groupService } from '../../services/groupService';
-import { Group } from '../../types/api';
+} from "@mui/material";
+import { Add, Edit, Delete } from "@mui/icons-material";
+import Layout from "../../components/common/Layout";
+import Loading from "../../components/common/Loading";
+import { groupService } from "../../services/groupService";
+import { Group } from "../../types/api";
 
 const Groups: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
+  const [formData, setFormData] = useState({ name: "", description: "" });
 
   useEffect(() => {
     fetchGroups();
@@ -36,7 +35,7 @@ const Groups: React.FC = () => {
       const data = await groupService.getAll();
       setGroups(data);
     } catch (error) {
-      console.error('Failed to fetch groups:', error);
+      console.error("Failed to fetch groups:", error);
     } finally {
       setLoading(false);
     }
@@ -45,10 +44,10 @@ const Groups: React.FC = () => {
   const handleOpen = (group?: Group) => {
     if (group) {
       setEditingGroup(group);
-      setFormData({ name: group.name, description: group.description || '' });
+      setFormData({ name: group.name, description: group.description || "" });
     } else {
       setEditingGroup(null);
-      setFormData({ name: '', description: '' });
+      setFormData({ name: "", description: "" });
     }
     setOpen(true);
   };
@@ -56,7 +55,7 @@ const Groups: React.FC = () => {
   const handleClose = () => {
     setOpen(false);
     setEditingGroup(null);
-    setFormData({ name: '', description: '' });
+    setFormData({ name: "", description: "" });
   };
 
   const handleSubmit = async () => {
@@ -69,17 +68,17 @@ const Groups: React.FC = () => {
       handleClose();
       fetchGroups();
     } catch (error) {
-      console.error('Failed to save group:', error);
+      console.error("Failed to save group:", error);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this group?')) {
+    if (window.confirm("Are you sure you want to delete this group?")) {
       try {
         await groupService.delete(id);
         fetchGroups();
       } catch (error) {
-        console.error('Failed to delete group:', error);
+        console.error("Failed to delete group:", error);
       }
     }
   };
@@ -94,9 +93,13 @@ const Groups: React.FC = () => {
 
   return (
     <Layout>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
         <Typography variant="h4">My Groups</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => handleOpen()}
+        >
           Create Group
         </Button>
       </Box>
@@ -108,16 +111,25 @@ const Groups: React.FC = () => {
               <CardContent>
                 <Typography variant="h6">{group.name}</Typography>
                 {group.description && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
                     {group.description}
                   </Typography>
                 )}
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                  Students: {Array.isArray(group.students) ? group.students.length : 0}
+                  Students:{" "}
+                  {Array.isArray(group.students) ? group.students.length : 0}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" startIcon={<Edit />} onClick={() => handleOpen(group)}>
+                <Button
+                  size="small"
+                  startIcon={<Edit />}
+                  onClick={() => handleOpen(group)}
+                >
                   Edit
                 </Button>
                 <Button
@@ -135,7 +147,9 @@ const Groups: React.FC = () => {
       </Grid>
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingGroup ? 'Edit Group' : 'Create Group'}</DialogTitle>
+        <DialogTitle>
+          {editingGroup ? "Edit Group" : "Create Group"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -149,7 +163,9 @@ const Groups: React.FC = () => {
             fullWidth
             label="Description"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             margin="normal"
             multiline
             rows={3}
@@ -158,7 +174,7 @@ const Groups: React.FC = () => {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleSubmit} variant="contained">
-            {editingGroup ? 'Update' : 'Create'}
+            {editingGroup ? "Update" : "Create"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -8,14 +8,14 @@ import {
   Button,
   Grid,
   Chip,
-} from '@mui/material';
-import { School, VideoLibrary, Description } from '@mui/icons-material';
-import Layout from '../../components/common/Layout';
-import Loading from '../../components/common/Loading';
-import { useNavigate } from 'react-router-dom';
-import { lectureService } from '../../services/lectureService';
-import { groupService } from '../../services/groupService';
-import { Lecture, Group } from '../../types/api';
+} from "@mui/material";
+import { VideoLibrary, Description } from "@mui/icons-material";
+import Layout from "../../components/common/Layout";
+import Loading from "../../components/common/Loading";
+import { useNavigate } from "react-router-dom";
+import { lectureService } from "../../services/lectureService";
+import { groupService } from "../../services/groupService";
+import { Lecture, Group } from "../../types/api";
 
 const Lectures: React.FC = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
@@ -28,7 +28,7 @@ const Lectures: React.FC = () => {
       try {
         const groupsData = await groupService.getAll();
         setGroups(groupsData);
-        
+
         const allLectures: Lecture[] = [];
         for (const group of groupsData) {
           try {
@@ -40,7 +40,7 @@ const Lectures: React.FC = () => {
         }
         setLectures(allLectures);
       } catch (error) {
-        console.error('Failed to fetch lectures:', error);
+        console.error("Failed to fetch lectures:", error);
       } finally {
         setLoading(false);
       }
@@ -71,11 +71,15 @@ const Lectures: React.FC = () => {
                   {lecture.title}
                 </Typography>
                 {lecture.description && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
                     {lecture.description}
                   </Typography>
                 )}
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
                   {lecture.isPublished && (
                     <Chip label="Published" color="success" size="small" />
                   )}

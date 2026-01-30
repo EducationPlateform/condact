@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Typography, Paper, Button } from '@mui/material';
-import Layout from '../../components/common/Layout';
+import React from "react";
+import { Typography, Paper, Button } from "@mui/material";
+import Layout from "../../components/common/Layout";
 
 const SystemSettings: React.FC = () => {
   return (

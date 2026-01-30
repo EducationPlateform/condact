@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -6,11 +6,9 @@ import {
   RadioGroup,
   FormControlLabel,
   FormControl,
-  FormLabel,
   TextField,
-  Checkbox,
-} from '@mui/material';
-import { Question } from '../../types/api';
+} from "@mui/material";
+import { Question } from "../../types/api";
 
 interface QuestionComponentProps {
   question: Question;
@@ -29,11 +27,11 @@ const QuestionComponent: React.FC<QuestionComponentProps> = ({
 }) => {
   const renderQuestion = () => {
     switch (question.type) {
-      case 'multiple-choice':
+      case "multiple-choice":
         return (
           <FormControl component="fieldset">
             <RadioGroup
-              value={value || ''}
+              value={value || ""}
               onChange={(e) => onChange(e.target.value)}
             >
               {question.options?.map((option, optIndex) => (
@@ -53,15 +51,19 @@ const QuestionComponent: React.FC<QuestionComponentProps> = ({
           </FormControl>
         );
 
-      case 'true-false':
+      case "true-false":
         return (
           <FormControl component="fieldset">
             <RadioGroup
-              value={value || ''}
+              value={value || ""}
               onChange={(e) => onChange(e.target.value)}
             >
               <FormControlLabel value="true" control={<Radio />} label="True" />
-              <FormControlLabel value="false" control={<Radio />} label="False" />
+              <FormControlLabel
+                value="false"
+                control={<Radio />}
+                label="False"
+              />
             </RadioGroup>
             {showAnswer && (
               <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
@@ -71,13 +73,13 @@ const QuestionComponent: React.FC<QuestionComponentProps> = ({
           </FormControl>
         );
 
-      case 'text':
+      case "text":
         return (
           <TextField
             fullWidth
             multiline
             rows={4}
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Enter your answer"
           />
@@ -89,7 +91,7 @@ const QuestionComponent: React.FC<QuestionComponentProps> = ({
   };
 
   return (
-    <Box sx={{ mb: 3, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+    <Box sx={{ mb: 3, p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
       <Typography variant="h6" gutterBottom>
         Question {index + 1} ({question.points} points)
       </Typography>

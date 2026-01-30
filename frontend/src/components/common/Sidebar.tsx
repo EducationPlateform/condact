@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -9,11 +9,10 @@ import {
   ListItemText,
   Box,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Dashboard,
   School,
-  VideoLibrary,
   Assignment,
   Quiz,
   Assessment,
@@ -23,8 +22,8 @@ import {
   ManageAccounts,
   Settings,
   Analytics,
-} from '@mui/icons-material';
-import { useAuth } from '../../context/AuthContext';
+} from "@mui/icons-material";
+import { useAuth } from "../../context/AuthContext";
 
 const drawerWidth = 240;
 
@@ -36,37 +35,53 @@ const Sidebar: React.FC = () => {
   const getMenuItems = () => {
     if (!user) return [];
 
-    if (user.role === 'student') {
+    if (user.role === "student") {
       return [
-        { text: 'Dashboard', icon: <Dashboard />, path: '/student' },
-        { text: 'Lectures', icon: <School />, path: '/student/lectures' },
-        { text: 'Homework', icon: <Assignment />, path: '/student/homework' },
-        { text: 'Exams', icon: <Quiz />, path: '/student/exams' },
-        { text: 'Scores', icon: <Assessment />, path: '/student/scores' },
-        { text: 'Profile', icon: <Person />, path: '/student/profile' },
+        { text: "Dashboard", icon: <Dashboard />, path: "/student" },
+        { text: "Lectures", icon: <School />, path: "/student/lectures" },
+        { text: "Homework", icon: <Assignment />, path: "/student/homework" },
+        { text: "Exams", icon: <Quiz />, path: "/student/exams" },
+        { text: "Scores", icon: <Assessment />, path: "/student/scores" },
+        { text: "Profile", icon: <Person />, path: "/student/profile" },
       ];
     }
 
-    if (user.role === 'teacher') {
+    if (user.role === "teacher") {
       return [
-        { text: 'Dashboard', icon: <Dashboard />, path: '/teacher' },
-        { text: 'Groups', icon: <Group />, path: '/teacher/groups' },
-        { text: 'Lectures', icon: <School />, path: '/teacher/lectures' },
-        { text: 'Upload Video', icon: <Upload />, path: '/teacher/video/upload' },
-        { text: 'Homework', icon: <Assignment />, path: '/teacher/homework' },
-        { text: 'Exams', icon: <Quiz />, path: '/teacher/exams' },
-        { text: 'Student Scores', icon: <Assessment />, path: '/teacher/scores' },
-        { text: 'Access Management', icon: <ManageAccounts />, path: '/teacher/access' },
+        { text: "Dashboard", icon: <Dashboard />, path: "/teacher" },
+        { text: "Groups", icon: <Group />, path: "/teacher/groups" },
+        { text: "Lectures", icon: <School />, path: "/teacher/lectures" },
+        {
+          text: "Upload Video",
+          icon: <Upload />,
+          path: "/teacher/video/upload",
+        },
+        { text: "Homework", icon: <Assignment />, path: "/teacher/homework" },
+        { text: "Exams", icon: <Quiz />, path: "/teacher/exams" },
+        {
+          text: "Student Scores",
+          icon: <Assessment />,
+          path: "/teacher/scores",
+        },
+        {
+          text: "Access Management",
+          icon: <ManageAccounts />,
+          path: "/teacher/access",
+        },
       ];
     }
 
-    if (user.role === 'admin') {
+    if (user.role === "admin") {
       return [
-        { text: 'Dashboard', icon: <Dashboard />, path: '/admin' },
-        { text: 'Users', icon: <Person />, path: '/admin/users' },
-        { text: 'Access Extension', icon: <ManageAccounts />, path: '/admin/access' },
-        { text: 'Settings', icon: <Settings />, path: '/admin/settings' },
-        { text: 'Analytics', icon: <Analytics />, path: '/admin/analytics' },
+        { text: "Dashboard", icon: <Dashboard />, path: "/admin" },
+        { text: "Users", icon: <Person />, path: "/admin/users" },
+        {
+          text: "Access Extension",
+          icon: <ManageAccounts />,
+          path: "/admin/access",
+        },
+        { text: "Settings", icon: <Settings />, path: "/admin/settings" },
+        { text: "Analytics", icon: <Analytics />, path: "/admin/analytics" },
       ];
     }
 
@@ -81,14 +96,14 @@ const Sidebar: React.FC = () => {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        '& .MuiDrawer-paper': {
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
-          boxSizing: 'border-box',
+          boxSizing: "border-box",
         },
       }}
     >
       <Toolbar />
-      <Box sx={{ overflow: 'auto' }}>
+      <Box sx={{ overflow: "auto" }}>
         <List>
           {menuItems.map((item) => (
             <ListItem key={item.text} disablePadding>
@@ -111,11 +126,11 @@ const Toolbar = () => (
   <Box
     sx={{
       height: 64,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       borderBottom: 1,
-      borderColor: 'divider',
+      borderColor: "divider",
     }}
   >
     <Typography variant="h6" noWrap component="div">

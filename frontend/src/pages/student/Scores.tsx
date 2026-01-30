@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Box,
   Typography,
   Paper,
   Table,
@@ -9,12 +8,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-} from '@mui/material';
-import Layout from '../../components/common/Layout';
-import Loading from '../../components/common/Loading';
-import { submissionService } from '../../services/submissionService';
-import { Score } from '../../types/api';
-import api from '../../services/api';
+} from "@mui/material";
+import Layout from "../../components/common/Layout";
+import Loading from "../../components/common/Loading";
+import { Score } from "../../types/api";
+import api from "../../services/api";
 
 const Scores: React.FC = () => {
   const [scores, setScores] = useState<Score[]>([]);
@@ -23,12 +21,12 @@ const Scores: React.FC = () => {
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        const response = await api.get('/admin/scores');
+        const response = await api.get("/admin/scores");
         if (response.data.success && response.data.data) {
           setScores(response.data.data);
         }
       } catch (error) {
-        console.error('Failed to fetch scores:', error);
+        console.error("Failed to fetch scores:", error);
       } finally {
         setLoading(false);
       }
@@ -64,7 +62,9 @@ const Scores: React.FC = () => {
             {scores.map((score) => (
               <TableRow key={score._id}>
                 <TableCell>
-                  {typeof score.lectureId === 'object' ? score.lectureId.title : 'Unknown'}
+                  {typeof score.lectureId === "object"
+                    ? score.lectureId.title
+                    : "Unknown"}
                 </TableCell>
                 <TableCell align="right">{score.homeworkScore || 0}</TableCell>
                 <TableCell align="right">{score.examScore || 0}</TableCell>
