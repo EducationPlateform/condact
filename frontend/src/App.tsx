@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/common/ProtectedRoute';
 import theme from './theme/theme';
 
 // Auth pages
+import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
@@ -38,8 +39,14 @@ import AccessExtension from './pages/admin/AccessExtension';
 import SystemSettings from './pages/admin/SystemSettings';
 import Analytics from './pages/admin/Analytics';
 
+import Loading from './components/common/Loading';
+
 const AppRoutes: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <Routes>
@@ -236,26 +243,13 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Root redirect */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            user.role === 'student' ? (
-              <Navigate to="/student" replace />
-            ) : user.role === 'teacher' ? (
-              <Navigate to="/teacher" replace />
-            ) : (
-              <Navigate to="/admin" replace />
-            )
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
+      {/* Root - Landing Page */}
+      <Route path="/" element={<Home />} />
     </Routes>
   );
 };
+
+import { Toaster } from './components/ui/toaster';
 
 const App: React.FC = () => {
   return (
@@ -265,6 +259,7 @@ const App: React.FC = () => {
         <Router>
           <AppRoutes />
         </Router>
+        <Toaster />
       </AuthProvider>
     </ThemeProvider>
   );

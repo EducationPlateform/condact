@@ -28,7 +28,8 @@ const VideoSecurityContext = createContext<VideoSecurityState | undefined>(
 export const VideoSecurityProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [isSecureMode, setIsSecureMode] = useState(true);
+  const [isSecureMode] = useState(true);
+  // const [isSecureMode, setIsSecureMode] = useState(true);
   const [violations, setViolations] = useState<SecurityViolation[]>([]);
 
   // const reportViolation = useCallback(async (lectureId: string, videoId: string | null, type: string, details: any) => {
@@ -60,7 +61,7 @@ export const VideoSecurityProvider: React.FC<{ children: ReactNode }> = ({
   const value: VideoSecurityState = {
     isSecureMode,
     violations,
-    reportViolation: async (type: string, details: any) => {
+    reportViolation: async (_type: string, _details: any) => {
       // This will be called with lectureId and videoId from the component
       // For now, we'll create a wrapper that components can use
       throw new Error(

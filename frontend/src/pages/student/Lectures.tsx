@@ -15,11 +15,10 @@ import Loading from "../../components/common/Loading";
 import { useNavigate } from "react-router-dom";
 import { lectureService } from "../../services/lectureService";
 import { groupService } from "../../services/groupService";
-import { Lecture, Group } from "../../types/api";
+import { Lecture } from "../../types/api";
 
 const Lectures: React.FC = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -27,7 +26,6 @@ const Lectures: React.FC = () => {
     const fetchData = async () => {
       try {
         const groupsData = await groupService.getAll();
-        setGroups(groupsData);
 
         const allLectures: Lecture[] = [];
         for (const group of groupsData) {
