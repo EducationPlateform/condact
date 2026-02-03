@@ -1,117 +1,144 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Star, ChevronLeft, ChevronRight, Trophy } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 const testimonials = [
   {
     id: 1,
-    name: "أحمد العبدي",
-    grade: "الصف الثالث الثانوي",
+    name: "أحمد العمري",
+    grade: "طالب هندسة، الصف الثاني عشر",
     rating: 5,
-    text: "كنت تايه في الرياضيات. بالضبط مش فاهم حاجة ليها. بس مع المهندس الأمور اتغيرت 180 درجة. الطريقة مختلفة والتمارين كثير.",
-    image: "/placeholder.svg",
+    text: "كنت أعاني من رهاب الرياضيات، ولكن مع هذه المنصة أصبحت المادة المفضلة لدي. حققت الدرجة الكاملة في اختبار القدرات بفضل الله.",
+    image: "/testimonals/test1.jpg",
   },
   {
     id: 2,
     name: "ليلى الراشد",
-    grade: "الصف الثاني الثانوي",
+    grade: "متفوقة المسار العلمي، الصف الحادي عشر",
     rating: 5,
-    text: "أطيلة كتير من أحسن القرارات. بالحساب مانا مفيش مجتهدة. الريافة جعلت الحساب عليه. يقضي من السهول، ديات، تنظيم وقت مختلفة",
-    image: "/placeholder.svg",
+    text: "طريقة شرح التفاضل والتكامل هنا لا توصف. الرسوم البيانية التفاعلية جعلت من السهل تخيل الدوال المعقدة وفهمها بعمق.",
+    image: "/testimonals/test2.jpg",
+  },
+  {
+    id: 3,
+    name: "ياسين محمد",
+    grade: "طالب متفوق، الصف الثالث الثانوي",
+    rating: 5,
+    text: "المنصة خلت الرياضيات مادة ممتعة جداً بالنسبة لي. الشرح بسيط والتمارين شاملة لكل أفكار الامتحان.",
+    image: "/testimonals/test3.jpg",
   },
 ];
 
 const SuccessStoriesSection = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length,
-    );
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      const scrollAmount = clientWidth * 0.8;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
   };
 
   return (
-    <section id="success-stories" className="bg-muted/50 py-16">
-      <div className="container">
-        <div className="mb-12 text-center">
-          <Badge variant="secondary" className="mb-4">
-            <Trophy className="ml-1 h-4 w-4" />
-            قصص نجاح عباقرتنا
-          </Badge>
-          <h2 className="text-3xl font-bold text-foreground">
-            قصص نجاح عباقرتنا
-          </h2>
-        </div>
-
-        <div className="relative">
-          <div className="flex items-center justify-center gap-4">
+    <section
+      id="success-stories"
+      className="bg-[#fcfdff] py-20 overflow-hidden"
+    >
+      <div className="container px-4">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row-reverse items-center justify-between mb-16 gap-8">
+          {/* Arrows */}
+          <div className="flex gap-4 order-3 md:order-1">
             <Button
               variant="outline"
               size="icon"
-              className="shrink-0"
-              onClick={prevSlide}
+              className="rounded-full h-14 w-14 shadow-lg border-none bg-[#3b82f6] text-white hover:bg-[#2563eb]"
+              onClick={() => scroll("right")}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-6 w-6" />
             </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full h-14 w-14 shadow-lg border-blue-100 text-[#3b82f6] hover:bg-blue-50"
+              onClick={() => scroll("left")}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+          </div>
 
-            <div className="grid w-full max-w-4xl gap-6 md:grid-cols-2">
-              {testimonials.map((testimonial, index) => (
-                <Card
-                  key={testimonial.id}
-                  className={`transition-all ${
-                    index === currentIndex
-                      ? "scale-100 opacity-100"
-                      : "scale-95 opacity-70"
-                  }`}
-                >
-                  <CardContent className="p-6">
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-primary/10" />
-                      <div>
-                        <h4 className="font-semibold text-foreground">
-                          {testimonial.name}
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          {testimonial.grade}
-                        </p>
-                      </div>
+          {/* Badge */}
+          <div className="order-2">
+            <div className="bg-[#3b82f6] text-white px-16 py-6 rounded-[3rem] text-2xl font-extrabold font-awesome shadow-xl shadow-blue-200">
+              بيت العيلة
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="order-1 md:order-3 text-center md:text-right">
+            <h2 className="text-4xl font-extrabold text-[#1a1a1a] font-awesome">
+              قصص نجاح عباقرتنا
+            </h2>
+          </div>
+        </div>
+
+        {/* Scrollable Testimonials */}
+        <div
+          ref={scrollRef}
+          className="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory no-scrollbar scroll-smooth rtl px-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {testimonials.map((testimonial) => (
+            <Card
+              key={testimonial.id}
+              className="group w-[85vw] md:w-[75vw] lg:w-[850px] shrink-0 snap-start border-none shadow-[0_20px_50px_rgba(0,0,0,0.03)] rounded-[2.5rem] bg-white transition-all duration-300"
+            >
+              <CardContent className="p-10">
+                <div className="flex flex-col sm:flex-row items-center gap-10">
+                  {/* Image */}
+                  <div className="shrink-0">
+                    <div className="relative h-48 w-48 overflow-hidden rounded-[2rem] border-8 border-blue-50 shadow-inner">
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
-                    <div className="mb-3 flex gap-1">
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 text-right">
+                    <div className="flex justify-end gap-1 mb-6">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <Star
                           key={i}
-                          className="h-4 w-4 fill-warning text-warning"
+                          className="h-6 w-6 fill-[#ff9800] text-[#ff9800]"
                         />
                       ))}
                     </div>
-                    <p className="text-sm text-muted-foreground">
+
+                    <p className="text-xl md:text-2xl text-gray-500 font-medium font-amin leading-relaxed mb-8">
                       "{testimonial.text}"
                     </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
 
-            <Button
-              variant="outline"
-              size="icon"
-              className="shrink-0"
-              onClick={nextSlide}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* CTA Button */}
-          <div className="mt-8 text-center">
-            <Button className="bg-primary">بيت العيلة</Button>
-          </div>
+                    <div>
+                      <h4 className="text-3xl font-bold text-[#1a1a1a] font-amin mb-2">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-lg text-gray-400 font-medium font-amin">
+                        {testimonial.grade}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>

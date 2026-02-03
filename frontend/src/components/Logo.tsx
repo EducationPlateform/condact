@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 
 interface LogoProps {
   className?: string;
+  isFooter?: boolean;
   size?: "sm" | "md" | "lg";
 }
 
-const Logo = ({ className, size = "md" }: LogoProps) => {
+const Logo = ({ className, size = "md", isFooter }: LogoProps) => {
   const heights = {
     sm: "h-8",
     md: "h-10",
@@ -21,12 +22,19 @@ const Logo = ({ className, size = "md" }: LogoProps) => {
 
   return (
     <Link to="/" className={cn("flex items-center gap-2", className)}>
-      <img 
-        src="/logo.png" 
-        alt="المهندس" 
+      <img
+        src="/logo.png"
+        alt="المهندس"
         className={cn(heights[size], "w-auto object-contain")}
       />
-      <span className={cn("font-bold text-[#003366] whitespace-nowrap", textSizes[size])}>
+      <span
+        className={cn(
+          isFooter
+            ? "font-normal font-amin text-[#1E293B] text-xl whitespace-nowrap"
+            : "font-bold text-[#003366] whitespace-nowrap",
+          textSizes[size],
+        )}
+      >
         منصة الرياضيات
       </span>
     </Link>
