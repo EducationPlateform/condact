@@ -11,6 +11,7 @@ public class Lecture
     public bool IsPublished { get; set; }
     public int Order { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string Grade { get; set; } = string.Empty;
 
     // Navigation properties
     public virtual Group Group { get; set; } = null!;

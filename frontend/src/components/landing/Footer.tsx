@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import Logo from "@/components/Logo";
-import { Youtube, Facebook, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -14,7 +13,7 @@ const Footer = () => {
             </h4>
             <div className="flex justify-end gap-6">
               {/* Youtube Blob */}
-              <a href="#" className="relative group">
+              <a href="https://youtube.com/@AliElsaied" className="relative group">
                 <div className="h-20 w-20 flex items-center justify-center text-white transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-red-200">
                   <img
                     src="/icons/youtube.png"

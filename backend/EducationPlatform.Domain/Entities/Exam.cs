@@ -10,6 +10,7 @@ public class Exam
     public decimal MaxScore { get; set; }
     public int TimeLimit { get; set; } // in minutes
     public bool IsActive { get; set; }
+    public DateTime? DueDate { get; set; }
     public DateTime CreatedAt { get; set; }
 
     // Navigation properties

@@ -23,6 +23,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<StudentAccess> StudentAccesses { get; set; }
     public DbSet<AccessCode> AccessCodes { get; set; }
     public DbSet<SecurityViolation> SecurityViolations { get; set; }
+    public DbSet<Announcement> Announcements { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

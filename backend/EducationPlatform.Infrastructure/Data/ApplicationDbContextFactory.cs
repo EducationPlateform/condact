@@ -1,22 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace EducationPlatform.Infrastructure.Data;
 
 public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
 {
-    private readonly IConfiguration _configuration;
-
-    public ApplicationDbContextFactory(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     public ApplicationDbContext CreateDbContext(string[] args)
     {
+        var basePath = Path.Combine(Directory.GetCurrentDirectory(), "../EducationPlatform.API");
+        
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json")
+            .Build();
+
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }

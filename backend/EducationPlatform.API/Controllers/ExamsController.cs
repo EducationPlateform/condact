@@ -37,11 +37,38 @@ public class ExamsController : BaseController
             MaxScore = request.MaxScore,
             TimeLimit = request.TimeLimit,
             IsActive = request.IsActive ?? true,
+            DueDate = !string.IsNullOrEmpty(request.DueDate) ? DateTime.Parse(request.DueDate) : null,
             CreatedAt = DateTime.UtcNow
         };
 
         _context.Exams.Add(exam);
         await _context.SaveChangesAsync();
+
+        var examDto = MapToExamDto(exam);
+        return Success(examDto);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var exams = await _context.Exams.ToListAsync();
+        var examDtos = exams.Select(MapToExamDto).ToList();
+        return Success(examDtos);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        if (!Guid.TryParse(id, out var examId))
+        {
+            return Error("Invalid exam ID");
+        }
+
+        var exam = await _context.Exams.FindAsync(examId);
+        if (exam == null)
+        {
+            return NotFound("Exam not found");
+        }
 
         var examDto = MapToExamDto(exam);
         return Success(examDto);
@@ -112,6 +139,11 @@ public class ExamsController : BaseController
             exam.IsActive = request.IsActive.Value;
         }
 
+        if (request.DueDate != null)
+        {
+            exam.DueDate = DateTime.Parse(request.DueDate);
+        }
+
         await _context.SaveChangesAsync();
 
         var examDto = MapToExamDto(exam);
@@ -151,6 +183,7 @@ public class ExamsController : BaseController
             MaxScore = exam.MaxScore,
             TimeLimit = exam.TimeLimit,
             IsActive = exam.IsActive,
+            DueDate = exam.DueDate?.ToString("O"),
             CreatedAt = exam.CreatedAt.ToString("O")
         };
     }
@@ -165,6 +198,7 @@ public class CreateExamRequest
     public decimal MaxScore { get; set; }
     public int TimeLimit { get; set; }
     public bool? IsActive { get; set; }
+    public string? DueDate { get; set; }
 }
 
 public class UpdateExamRequest
@@ -175,6 +209,7 @@ public class UpdateExamRequest
     public decimal? MaxScore { get; set; }
     public int? TimeLimit { get; set; }
     public bool? IsActive { get; set; }
+    public string? DueDate { get; set; }
 }
 
 public class ExamDto
@@ -187,5 +222,6 @@ public class ExamDto
     public decimal MaxScore { get; set; }
     public int TimeLimit { get; set; }
     public bool IsActive { get; set; }
+    public string? DueDate { get; set; }
     public string CreatedAt { get; set; } = string.Empty;
 }

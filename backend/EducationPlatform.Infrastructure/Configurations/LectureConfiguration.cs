@@ -15,6 +15,7 @@ public class LectureConfiguration : IEntityTypeConfiguration<Lecture>
         builder.Property(l => l.IsPublished).IsRequired();
         builder.Property(l => l.Order).IsRequired();
         builder.Property(l => l.CreatedAt).IsRequired();
+        builder.Property(l => l.Grade).HasMaxLength(50);
 
         // Relationships
         builder.HasOne(l => l.Video)

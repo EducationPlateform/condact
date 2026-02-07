@@ -1,14 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
-  Calculator,
-  Search,
-  Bell,
-  MessageSquare,
   BookOpen,
   Users,
   FileText,
@@ -16,348 +11,436 @@ import {
   Plus,
   Clock,
   AlertCircle,
-  Info,
-  LogOut,
   Zap,
   TrendingUp,
   Headphones,
+  History,
+  Loader2,
+  ShieldCheck,
+  CheckCircle,
 } from "lucide-react";
+import TeacherLayout from "@/components/layouts/TeacherLayout";
+import { groupService } from "@/services/groupService";
+import { homeworkService } from "@/services/homeworkService";
+import { examService } from "@/services/examService";
+import { lectureService } from "@/services/lectureService";
+import { submissionService } from "@/services/submissionService";
+import { securityService } from "@/services/securityService";
+import { announcementService } from "@/services/announcementService";
+import { Group, Homework, Lecture, Announcement } from "@/types/api";
 
 const TeacherDashboard = () => {
-  const [academicYear] = useState("2024");
-  const [semester] = useState("الفصل الأول");
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState({
+    coursesCount: 0,
+    studentsCount: 0,
+    activeHomeworks: 0,
+    examsCount: 0,
+    todaySchedule: [] as any[],
+    ungradedSubmissions: 0,
+    recentViolations: 0,
+    announcements: [] as Announcement[],
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [groups, homeworks, exams, lectures, submissions, violations, announcements] = await Promise.all([
+          groupService.getAll(),
+          homeworkService.getAll(),
+          examService.getAll(),
+          lectureService.getAll(),
+          submissionService.getAll(),
+          securityService.getViolations(),
+          announcementService.getActive(),
+        ]);
+
+        // Calculate total unique students
+        const allStudentIds = new Set();
+        groups.forEach((g: Group) => {
+          g.students?.forEach((s) => allStudentIds.add(s.id));
+        });
+
+        // Filter active homeworks (due date in future or no due date)
+        const now = new Date();
+        const activeHW = homeworks.filter((h: Homework) => {
+          if (!h.dueDate) return true;
+          return new Date(h.dueDate) > now;
+        }).length;
+
+        // Filter today's schedule
+        const todayStr = now.toISOString().split("T")[0];
+        const schedule = lectures
+          .filter((l: Lecture) => l.scheduledDate?.startsWith(todayStr))
+          .map((l: Lecture) => {
+            const date = l.scheduledDate ? new Date(l.scheduledDate) : null;
+            return {
+              time: date ? date.toLocaleTimeString("ar-EG", { hour: '2-digit', minute: '2-digit', hour12: true }) : "غير محدد",
+              subject: l.title,
+              topic: l.description || "لا يوجد وصف",
+              status: l.isPublished ? "live" : "scheduled",
+              grade: l.grade
+            };
+          })
+          .sort((a, b) => a.time.localeCompare(b.time));
+
+        // Count ungraded submissions
+        const ungraded = submissions.filter(s => s.score === null).length;
+
+        // Count violations in last 24 hours
+        const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const recentViolationsCount = violations.filter(v => new Date(v.detectedAt) > yesterday).length;
+
+        setData({
+          coursesCount: groups.length,
+          studentsCount: allStudentIds.size,
+          activeHomeworks: activeHW,
+          examsCount: exams.length,
+          todaySchedule: schedule,
+          ungradedSubmissions: ungraded,
+          recentViolations: recentViolationsCount,
+          announcements: announcements,
+        });
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const stats = [
     {
       icon: BookOpen,
-      value: "12",
-      label: "عدد الكورسات",
-      change: "+2 هذا الشهر",
+      value: data.coursesCount.toString(),
+      label: "عدد المجموعات",
+      change: "إجمالي المجموعات",
       changeType: "positive" as const,
-      color: "text-primary bg-primary/10",
+      color: "text-primary",
+      bg: "bg-blue-50",
     },
     {
       icon: Users,
-      value: "450",
+      value: data.studentsCount.toString(),
       label: "عدد الطلبة",
-      change: "+45 طالب جديد",
+      change: "إجمالي الطلاب الفريدين",
       changeType: "positive" as const,
-      color: "text-success bg-success/10",
+      color: "text-success",
+      bg: "bg-green-50",
     },
     {
       icon: FileText,
-      value: "8",
+      value: data.activeHomeworks.toString(),
       label: "الواجبات النشطة",
-      change: "3 تنتهي قريباً",
+      change: "تكليفات لم تنتهِ بعد",
       changeType: "warning" as const,
-      color: "text-warning bg-warning/10",
+      color: "text-orange-500",
+      bg: "bg-orange-50",
     },
     {
       icon: ClipboardList,
-      value: "3",
+      value: data.examsCount.toString(),
       label: "الامتحانات",
-      change: "آخر تحديث: أمس",
+      change: "إجمالي الاختبارات المتاحة",
       changeType: "neutral" as const,
-      color: "text-primary bg-primary/10",
+      color: "text-purple-500",
+      bg: "bg-purple-50",
     },
   ];
 
-  const todaySchedule = [
-    {
-      time: "10:00 صباحاً",
-      subject: "جبر - الصف الثالث الثانوي",
-      topic: "الوحدة الثانية: الأعداد المركبة",
-      status: "live",
-    },
-    {
-      time: "12:30 ظهراً",
-      subject: "هندسة - الصف الثاني الثانوي",
-      topic: "مراجعة عامة على المثلثات",
-      status: "scheduled",
-    },
-    {
-      time: "03:00 مساءً",
-      subject: "إحصاء - الصف الأول الثانوي",
-      topic: "مقدمة في الاحتمالات",
-      status: "scheduled",
-    },
-  ];
+  const notifications = [];
 
-  const notifications = [
-    {
+  // Add system announcements first
+  data.announcements.forEach((announcement) => {
+    const iconMap = {
+      info: CheckCircle,
+      warning: AlertCircle,
+      success: CheckCircle,
+    };
+    const colorMap = {
+      info: { bg: "bg-blue-50 border-blue-100", icon: "text-blue-500" },
+      warning: { bg: "bg-yellow-50 border-yellow-100", icon: "text-yellow-500" },
+      success: { bg: "bg-green-50 border-green-100", icon: "text-green-500" },
+    };
+
+    notifications.push({
+      type: announcement.type,
+      title: announcement.title,
+      description: announcement.message,
+      icon: iconMap[announcement.type] || CheckCircle,
+      color: colorMap[announcement.type]?.bg || "bg-blue-50 border-blue-100",
+      iconColor: colorMap[announcement.type]?.icon || "text-blue-500",
+    });
+  });
+
+  if (data.ungradedSubmissions > 0) {
+    notifications.push({
       type: "warning",
       title: "تصحيح واجبات",
-      description: "توجد 15 مشاركة لم يتم تصحيحها في كورس الجبر",
+      description: `توجد ${data.ungradedSubmissions} مشاركة بانتظار التصحيح والمراجعة`,
       icon: AlertCircle,
-      color: "bg-warning/10 border-warning/30",
-    },
-    {
+      color: "bg-red-50 border-red-100",
+      iconColor: "text-red-500",
+    });
+  }
+
+  if (data.recentViolations > 0) {
+    notifications.push({
+      type: "error",
+      title: "خرق أمني",
+      description: `تم رصد ${data.recentViolations} محاولة تصوير أو فتح أدوات المطور في آخر 24 ساعة`,
+      icon: ShieldCheck,
+      color: "bg-orange-50 border-orange-100",
+      iconColor: "text-orange-500",
+    });
+  }
+
+  if (notifications.length === 0) {
+    notifications.push({
       type: "info",
-      title: "تحديث المنصة",
-      description: "تم إضافة مميزات جديدة لنظام الامتحانات الأسبوع القادم",
-      icon: Info,
-      color: "bg-primary/10 border-primary/30",
-    },
-  ];
+      title: "لا توجد تنبيهات",
+      description: "منصتك تعمل بشكل مثالي، لا توجد مهام معلقة حالياً",
+      icon: CheckCircle,
+      color: "bg-emerald-50 border-emerald-100",
+      iconColor: "text-emerald-500",
+    });
+  }
+
+  const today = new Date().toLocaleDateString("ar-EG", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  if (loading) {
+    return (
+      <TeacherLayout>
+        <div className="flex h-[80vh] w-full items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      </TeacherLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="flex h-16 items-center justify-between px-4">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Calculator className="h-5 w-5" />
-            </div>
-            <span className="text-xl font-bold">التعليم الذكي</span>
-          </div>
-
-          {/* Search */}
-          <div className="hidden flex-1 max-w-md mx-8 md:block">
-            <div className="relative">
-              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="البحث عن دروس، طلاب، أو نتائج..."
-                className="pr-10"
-              />
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <MessageSquare className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -left-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center">
-                3
-              </span>
-            </Button>
-            <div className="flex items-center gap-2 border-r pr-4">
-              <span className="text-sm text-muted-foreground">
-                العام الدراسي {academicYear}
-              </span>
-              <Badge variant="outline">{semester}</Badge>
-            </div>
-          </div>
+    <TeacherLayout>
+      {/* Page Title & Date */}
+      <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <h1 className="mb-2 text-3xl font-extrabold font-inter text-gray-900">
+            لوحة تحكم المعلم
+          </h1>
+          <p className="text-gray-500 text-base font-inter">
+            مرحباً بك مجدداً. إليك نظرة عامة على نشاطك اليوم والأداء العام
+          </p>
         </div>
-      </header>
+        <div className="text-right rtl:text-right">
+          <p className="mb-1 text-xs text-gray-400 font-bold font-inter">تاريخ اليوم</p>
+          <p className="text-sm font-bold font-inter text-gray-800">
+            {today}
+          </p>
+        </div>
+      </div>
 
-      <div className="flex">
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  لوحة تحكم المعلم
-                </h1>
-                <p className="text-muted-foreground">
-                  مرحباً بك مجدداً. إليك نظرة عامة على نشاطك اليوم والأداء العام
-                </p>
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-muted-foreground">تاريخ اليوم</p>
-                <p className="font-semibold">الثلاثاء، 24 أكتوبر 2023</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="text-3xl font-bold text-foreground">
-                        {stat.value}
-                      </p>
-                      <p
-                        className={`mt-1 text-xs flex items-center gap-1 ${
-                          stat.changeType === "positive"
-                            ? "text-success"
-                            : stat.changeType === "warning"
-                              ? "text-warning"
-                              : "text-muted-foreground"
-                        }`}
-                      >
-                        {stat.changeType === "positive" && (
-                          <TrendingUp className="h-3 w-3" />
-                        )}
-                        {stat.changeType === "warning" && (
-                          <Clock className="h-3 w-3" />
-                        )}
-                        {stat.change}
-                      </p>
-                    </div>
-                    <div className={`rounded-lg p-3 ${stat.color}`}>
-                      <stat.icon className="h-6 w-6" />
-                    </div>
+      {/* Stats Grid */}
+      <div className="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <Card
+            key={index}
+            className="border-none shadow-sm transition-shadow hover:shadow-md"
+          >
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                  <div className={`rounded-xl p-3 ${stat.bg} ${stat.color}`}>
+                    <stat.icon className="h-6 w-6" />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-[#4C6C9A]">
+                    {stat.label}
+                  </p>
+                  <p className="text-3xl font-extrabold font-inter text-gray-900 mb-1">
+                    {stat.value}
+                  </p>
+                </div>
 
-          {/* Quick Actions */}
-          <div className="mb-8">
-            <div className="mb-4 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">إجراءات سريعة</h2>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Button size="lg" className="h-14 gap-2" asChild>
-                <Link to="/teacher/homework/create">
-                  <Plus className="h-5 w-5" />
-                  إضافة حصة جديدة
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="h-14 gap-2"
-                asChild
-              >
-                <Link to="/teacher/homework/create">
-                  <FileText className="h-5 w-5" />
-                  إنشاء تكليف
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {/* Schedule & Notifications */}
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Today's Schedule */}
-            <Card className="lg:col-span-2">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>جدول حصص اليوم</CardTitle>
-                <Button variant="link" size="sm">
-                  عرض الجدول الكامل
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {todaySchedule.map((session, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-4 rounded-lg border p-4"
+                <div className="flex items-center gap-2 text-xs">
+                  {stat.changeType === "positive" && (
+                    <TrendingUp className="h-3 w-3 text-green-600" />
+                  )}
+                  {stat.changeType === "warning" && (
+                    <Clock className="h-3 w-3 text-orange-600" />
+                  )}
+                  {stat.changeType === "neutral" && (
+                    <History className="h-3 w-3 text-purple-600" />
+                  )}
+                  <span
+                    className={`font-medium ${stat.changeType === "positive"
+                      ? "text-green-600"
+                      : stat.changeType === "warning"
+                        ? "text-orange-600"
+                        : "text-purple-500"
+                      }`}
                   >
-                    <div className="text-center">
-                      <p className="text-sm font-semibold text-foreground">
-                        {session.time.split(" ")[0]}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {session.time.split(" ")[1]}
-                      </p>
-                    </div>
-                    <div className="h-12 w-px bg-border" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-foreground">
-                        {session.subject}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {session.topic}
-                      </p>
-                    </div>
-                    <Badge
-                      className={
-                        session.status === "live"
-                          ? "bg-success text-success-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }
-                    >
-                      {session.status === "live" ? "مباشر الآن" : "مجدولة"}
-                    </Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                    {stat.change}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-            {/* Notifications & Support */}
-            <div className="space-y-6">
-              {/* Notifications */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>تنبيهات هامة</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {notifications.map((notification, index) => (
+      {/* Quick Actions */}
+      <div className="mb-10">
+        <div className="mb-5 flex items-center gap-2">
+          <Zap className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold font-inter text-gray-900">إجراءات سريعة</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Button
+            size="lg"
+            className="h-16 gap-3 rounded-2xl text-lg shadow-lg shadow-primary/20"
+            asChild
+          >
+            <Link to="/teacher/lectures/new">
+              <Plus className="h-6 w-6" />
+              إضافة حصة جديدة
+            </Link>
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-16 gap-3 rounded-2xl border-2 bg-white text-lg text-primary hover:bg-blue-50 hover:text-primary"
+            asChild
+          >
+            <Link to="/teacher/homework/new">
+              <FileText className="h-6 w-6" />
+              إنشاء تكليف
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Schedule */}
+        <div className="lg:col-span-2">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">جدول حصص اليوم</h2>
+            <Button variant="link" className="text-primary" asChild>
+              <Link to="/teacher/lectures">عرض الجدول الكامل</Link>
+            </Button>
+          </div>
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-0">
+              <div className="divide-y">
+                {data.todaySchedule.length > 0 ? (
+                  data.todaySchedule.map((session, index) => (
                     <div
                       key={index}
-                      className={`rounded-lg border p-3 ${notification.color}`}
+                      className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center"
                     >
-                      <div className="flex items-start gap-2">
-                        <notification.icon
-                          className={`h-5 w-5 ${
-                            notification.type === "warning"
-                              ? "text-warning"
-                              : "text-primary"
-                          }`}
-                        />
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {notification.description}
-                          </p>
-                        </div>
+                      <div className={`flex min-w-[100px] flex-col items-center justify-center rounded-2xl p-3 ${session.status === "live" ? "bg-blue-50 text-blue-500" : "bg-gray-100 text-gray-500"}`}>
+                        <span className="text-lg font-bold">
+                          {session.time.split(" ")[0]}
+                        </span>
+                        <span className="text-xs">
+                          {session.time.split(" ")[1]}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 space-y-1">
+                        <h4 className="text-lg font-bold text-gray-900">
+                          {session.subject}
+                        </h4>
+                        <p className="text-sm text-gray-500 line-clamp-1">{session.topic}</p>
+                      </div>
+
+                      <div>
+                        {session.status === "live" ? (
+                          <Badge className="bg-green-100 text-green-700 hover:bg-green-200 px-4 py-1">
+                            منشورة
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="bg-gray-100 text-gray-500 hover:bg-gray-200 px-4 py-1"
+                          >
+                            مجدولة
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                  ))
+                ) : (
+                  <div className="p-10 text-center text-gray-500">
+                    لا توجد حصص مجدولة لليوم
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              {/* Support Card */}
-              <Card className="bg-primary text-primary-foreground">
-                <CardContent className="p-6">
-                  <Headphones className="mb-3 h-8 w-8" />
-                  <h3 className="mb-2 font-bold">الدعم الفني</h3>
-                  <p className="mb-4 text-sm text-primary-foreground/80">
-                    هل تواجه أي مشكلة في إدارة الفصول؟ فريقنا هنا لمساعدتك
-                    دائماً.
-                  </p>
-                  <Button variant="secondary" className="w-full">
-                    تواصل معنا
-                  </Button>
-                </CardContent>
-              </Card>
+        {/* Notifications & Support */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="mb-5 text-xl font-bold text-gray-900">
+              تنبيهات هامة
+            </h2>
+            <div className="space-y-4">
+              {notifications.map((notification, index) => (
+                <div
+                  key={index}
+                  className={`relative overflow-hidden rounded-2xl border p-4 ${notification.color}`}
+                >
+                  <div className="flex gap-4">
+                    <div
+                      className={`rounded-full bg-white p-2 ${notification.iconColor}`}
+                    >
+                      <notification.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">
+                        {notification.title}
+                      </h4>
+                      <p className="mt-1 text-sm text-gray-600">
+                        {notification.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </main>
 
-        {/* Right Sidebar */}
-        <aside className="hidden w-64 border-r bg-background p-4 lg:block">
-          <div className="flex flex-col items-center border-b pb-4">
-            <div className="mb-3 h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-              <Users className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-bold text-foreground">أ/ علي السيد</h3>
-            <p className="text-sm text-muted-foreground">معلم أول رياضيات</p>
-          </div>
-
-          <div className="mt-auto pt-4">
-            <Button
-              variant="outline"
-              className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10"
-              asChild
-            >
-              <Link to="/">
-                <LogOut className="h-4 w-4" />
-                تسجيل الخروج
-              </Link>
-            </Button>
-          </div>
-        </aside>
+          <Card className="overflow-hidden border-none bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+            <CardContent className="relative p-6">
+              <div className="relative z-10">
+                <div className="mb-4 inline-flex rounded-xl bg-white/20 p-3 backdrop-blur-sm">
+                  <Headphones className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold">الدعم الفني</h3>
+                <p className="mb-6 text-primary-foreground/90">
+                  هل تواجه أي مشكلة في إدارة الفصول؟ فريقنا هنا لمساعدتك دائماً.
+                </p>
+                <Button className="w-full bg-white text-primary hover:bg-white/90">
+                  تواصل معنا
+                </Button>
+              </div>
+              {/* Decorative circles */}
+              <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+              <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-white/10 blur-xl"></div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </TeacherLayout>
   );
 };
 

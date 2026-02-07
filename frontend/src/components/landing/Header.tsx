@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
+import { useAuth } from "@/context/AuthContext";
 
 const Header = () => {
+  const { user } = useAuth();
   const navLinks = [
     { label: "المسارات التعليمية", href: "#paths" },
     { label: "قصص النجاح", href: "#success-stories" },
     { label: "من نحن", href: "#about" },
-    { label: "التواصل معنا", href: "#contact" },
+    { label: "تواصل معنا", href: "contact" },
   ];
 
   return (
@@ -28,9 +30,17 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button asChild>
-            <Link to="/login">تسجيل الدخول</Link>
-          </Button>
+          {user ? (
+            <Button asChild variant="default" className="rounded-full px-6">
+              <Link to={user.role === "teacher" ? "/teacher" : "/student"}>
+                لوحة التحكم
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild variant="default" className="rounded-full px-6">
+              <Link to="/login">تسجيل الدخول</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

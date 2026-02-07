@@ -40,7 +40,8 @@ public class LecturesController : BaseController
             ScheduledDate = !string.IsNullOrEmpty(request.ScheduledDate) ? DateTime.Parse(request.ScheduledDate) : null,
             IsPublished = request.IsPublished ?? false,
             Order = request.Order ?? 0,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Grade = request.Grade ?? string.Empty
         };
 
         _context.Lectures.Add(lecture);
@@ -69,6 +70,16 @@ public class LecturesController : BaseController
             lectureDtos.Add(await MapToLectureDtoAsync(lecture));
         }
 
+        return Success(lectureDtos);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var lectures = await _context.Lectures
+            .Include(l => l.PdfFiles)
+            .ToListAsync();
+        var lectureDtos = lectures.Select(MapToLectureDto).ToList();
         return Success(lectureDtos);
     }
 
@@ -128,6 +139,11 @@ public class LecturesController : BaseController
         if (request.Order.HasValue)
         {
             lecture.Order = request.Order.Value;
+        }
+
+        if (request.Grade != null)
+        {
+            lecture.Grade = request.Grade;
         }
 
         await _context.SaveChangesAsync();
@@ -220,6 +236,26 @@ public class LecturesController : BaseController
         return File(fileStream, "application/pdf", pdfFile.FileName);
     }
 
+    private LectureDto MapToLectureDto(Domain.Entities.Lecture lecture)
+    {
+        var pdfFiles = lecture.PdfFiles?.Select(pf => pf.FileUrl).ToList() ?? new List<string>();
+
+        return new LectureDto
+        {
+            Id = lecture.Id.ToString(),
+            GroupId = lecture.GroupId.ToString(),
+            Title = lecture.Title,
+            Description = lecture.Description,
+            VideoId = lecture.VideoId?.ToString(),
+            PdfFiles = pdfFiles,
+            ScheduledDate = lecture.ScheduledDate?.ToString("O"),
+            IsPublished = lecture.IsPublished,
+            Order = lecture.Order,
+            CreatedAt = lecture.CreatedAt.ToString("O"),
+            Grade = lecture.Grade
+        };
+    }
+
     private async Task<LectureDto> MapToLectureDtoAsync(Domain.Entities.Lecture lecture)
     {
         await _context.Entry(lecture).Reference(l => l.Group).LoadAsync();
@@ -238,7 +274,8 @@ public class LecturesController : BaseController
             ScheduledDate = lecture.ScheduledDate?.ToString("O"),
             IsPublished = lecture.IsPublished,
             Order = lecture.Order,
-            CreatedAt = lecture.CreatedAt.ToString("O")
+            CreatedAt = lecture.CreatedAt.ToString("O"),
+            Grade = lecture.Grade
         };
     }
 }
@@ -251,6 +288,7 @@ public class CreateLectureRequest
     public string? ScheduledDate { get; set; }
     public bool? IsPublished { get; set; }
     public int? Order { get; set; }
+    public string? Grade { get; set; }
 }
 
 public class UpdateLectureRequest
@@ -260,6 +298,7 @@ public class UpdateLectureRequest
     public string? ScheduledDate { get; set; }
     public bool? IsPublished { get; set; }
     public int? Order { get; set; }
+    public string? Grade { get; set; }
 }
 
 public class LectureDto
@@ -274,4 +313,5 @@ public class LectureDto
     public bool IsPublished { get; set; }
     public int Order { get; set; }
     public string CreatedAt { get; set; } = string.Empty;
+    public string Grade { get; set; } = string.Empty;
 }

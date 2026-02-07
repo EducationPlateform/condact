@@ -21,10 +21,19 @@ public class UsersController : BaseController
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _context.Users
+        var isAdmin = User.IsInRole("Admin");
+        var query = _context.Users.AsQueryable();
+
+        // If not admin, only show students
+        if (!isAdmin)
+        {
+            query = query.Where(u => u.Role == UserRole.Student);
+        }
+
+        var users = await query
             .Select(u => new UserDto
             {
                 Id = u.Id.ToString(),

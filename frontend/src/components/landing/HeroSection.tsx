@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const HeroSection = () => {
+  const { user } = useAuth();
   return (
     <section className="relative overflow-hidden py-12 lg:py-20">
       {/* Hero background image */}
@@ -31,9 +33,9 @@ const HeroSection = () => {
                 className="relative overflow-hidden bg-[#0056b3] text-white transition-all duration-300 hover:bg-[#3b82f6] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] px-8 h-auto min-h-14 py-3 text-lg font-bold shadow-lg group max-w-[200px] sm:max-w-none"
                 asChild
               >
-                <Link to="/login">
+                <Link to={user ? (user.role === "teacher" ? "/teacher" : "/student") : "/login"}>
                   <span className="relative z-10 whitespace-normal text-center leading-tight">
-                    ابدأ المتابعة الكاملة
+                    {user ? "اذهب إلى لوحة التحكم" : "ابدأ المتابعة الكاملة"}
                   </span>
                   <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </Link>

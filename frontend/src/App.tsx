@@ -10,6 +10,7 @@ import theme from './theme/theme';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ContactUs from './pages/ContactUs';
 
 // Student pages
 import StudentDashboard from './pages/student/Dashboard';
@@ -24,13 +25,15 @@ import StudentProfile from './pages/student/Profile';
 // Teacher pages
 import TeacherDashboard from './pages/teacher/Dashboard';
 import Groups from './pages/teacher/Groups';
+import GroupEditor from './pages/teacher/GroupEditor';
 import TeacherLectures from './pages/teacher/Lectures';
 import LectureEditor from './pages/teacher/LectureEditor';
 import VideoUpload from './pages/teacher/VideoUpload';
+import TeacherHomeworks from './pages/teacher/Homeworks';
 import HomeworkEditor from './pages/teacher/HomeworkEditor';
-import ExamEditor from './pages/teacher/ExamEditor';
 import StudentScoresTeacher from './pages/teacher/StudentScores';
 import AccessManagement from './pages/teacher/AccessManagement';
+import TeacherProfile from './pages/teacher/Profile';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -52,7 +55,8 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
       <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
-      
+      <Route path="/contact" element={<ContactUs />} />
+
       {/* Student Routes */}
       <Route
         path="/student"
@@ -137,6 +141,22 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/teacher/groups/new"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <GroupEditor />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/groups/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <GroupEditor />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/teacher/lectures"
         element={
           <ProtectedRoute allowedRoles={['teacher']}>
@@ -172,6 +192,22 @@ const AppRoutes: React.FC = () => {
         path="/teacher/homework"
         element={
           <ProtectedRoute allowedRoles={['teacher']}>
+            <TeacherHomeworks />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/homework/new"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <HomeworkEditor />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/homework/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
             <HomeworkEditor />
           </ProtectedRoute>
         }
@@ -180,7 +216,23 @@ const AppRoutes: React.FC = () => {
         path="/teacher/exams"
         element={
           <ProtectedRoute allowedRoles={['teacher']}>
-            <ExamEditor />
+            <TeacherHomeworks />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/exams/new"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <HomeworkEditor />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/exams/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <HomeworkEditor />
           </ProtectedRoute>
         }
       />
@@ -197,6 +249,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['teacher']}>
             <AccessManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/profile"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <TeacherProfile />
           </ProtectedRoute>
         }
       />

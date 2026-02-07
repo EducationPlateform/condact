@@ -40,6 +40,20 @@ public class GroupsController : BaseController
         };
 
         _context.Groups.Add(group);
+
+        // Add students if provided
+        if (request.StudentIds != null && request.StudentIds.Any())
+        {
+            foreach (var studentId in request.StudentIds)
+            {
+                _context.GroupStudents.Add(new Domain.Entities.GroupStudent
+                {
+                    GroupId = group.Id,
+                    StudentId = studentId
+                });
+            }
+        }
+
         await _context.SaveChangesAsync();
 
         var groupDto = await MapToGroupDtoAsync(group);
@@ -96,7 +110,10 @@ public class GroupsController : BaseController
             return Error("Invalid group ID");
         }
 
-        var group = await _context.Groups.FindAsync(groupId);
+        var group = await _context.Groups
+            .Include(g => g.GroupStudents)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
         if (group == null)
         {
             return NotFound("Group not found");
@@ -123,6 +140,26 @@ public class GroupsController : BaseController
         if (request.Schedule != null)
         {
             group.Schedule = System.Text.Json.JsonSerializer.Serialize(request.Schedule);
+        }
+
+        // Update students if provided
+        if (request.StudentIds != null)
+        {
+            // Remove existing students
+            var existingStudents = await _context.GroupStudents
+                .Where(gs => gs.GroupId == groupId)
+                .ToListAsync();
+            _context.GroupStudents.RemoveRange(existingStudents);
+
+            // Add new students
+            foreach (var studentId in request.StudentIds)
+            {
+                _context.GroupStudents.Add(new Domain.Entities.GroupStudent
+                {
+                    GroupId = groupId,
+                    StudentId = studentId
+                });
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -282,6 +319,7 @@ public class CreateGroupRequest
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public List<string>? Schedule { get; set; }
+    public List<Guid>? StudentIds { get; set; }
     public Guid? TeacherId { get; set; }
 }
 
@@ -290,6 +328,7 @@ public class UpdateGroupRequest
     public string? Name { get; set; }
     public string? Description { get; set; }
     public List<string>? Schedule { get; set; }
+    public List<Guid>? StudentIds { get; set; }
 }
 
 public class AddStudentRequest

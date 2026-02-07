@@ -101,7 +101,21 @@ public class SecurityController : BaseController
             }).ToList());
         }
 
-        return Error("Please provide studentId, lectureId, or videoId");
+        {
+            var violations = await _violationService.GetAllViolationsAsync();
+            return Success(violations.Select(v => new SecurityViolationDto
+            {
+                Id = v.Id.ToString(),
+                StudentId = v.StudentId.ToString(),
+                LectureId = v.LectureId.ToString(),
+                VideoId = v.VideoId?.ToString(),
+                ViolationType = v.ViolationType,
+                Details = v.Details,
+                DetectedAt = v.DetectedAt.ToString("O"),
+                IpAddress = v.IpAddress,
+                UserAgent = v.UserAgent
+            }).ToList());
+        }
     }
 
     [HttpGet("watermark/{lectureId}")]

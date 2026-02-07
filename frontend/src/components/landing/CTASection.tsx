@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const CTASection = () => {
+  const { user } = useAuth();
   return (
     <section className="relative overflow-hidden bg-[url('/CTA-bg.png')] bg-cover bg-no-repeat bg-center my-20 py-4 mx-24 rounded-2xl">
       <div className="absolute bottom-0 left-0 z-0 ">
@@ -44,9 +46,9 @@ const CTASection = () => {
             className="relative overflow-hidden bg-[#2B7CEE] text-white transition-all duration-300 hover:bg-[#3b82f6] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] px-10 py-4 h-20 text-base font-extrabold rounded-2xl font-notoSansArabic shadow-lg group sm:max-w-none"
             asChild
           >
-            <Link to="/login">
+            <Link to={user ? (user.role === "teacher" ? "/teacher" : "/student") : "/login"}>
               <span className="relative z-10 whitespace-normal text-center leading-tight">
-                ابدأ المتابعة الكاملة
+                {user ? "اذهب إلى لوحة التحكم" : "ابدأ المتابعة الكاملة"}
               </span>
               <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             </Link>

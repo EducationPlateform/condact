@@ -25,4 +25,14 @@ export const userService = {
     }
     throw new Error(response.data.message || 'Failed to update user');
   },
+
+  getStudents: async (): Promise<User[]> => {
+    const response = await api.get<ApiResponse<User[]>>('/users');
+    if (response.data.success && response.data.data) {
+      // The backend already filters by students if the user is a teacher,
+      // but we can add an extra layer of safety here just in case.
+      return response.data.data.filter(u => u.role === 'student');
+    }
+    throw new Error(response.data.message || 'Failed to fetch students');
+  },
 };

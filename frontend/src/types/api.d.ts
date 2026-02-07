@@ -1,5 +1,5 @@
 export interface User {
-  _id: string;
+  id: string;
   email: string;
   name: string;
   role: 'admin' | 'teacher' | 'student';
@@ -8,17 +8,18 @@ export interface User {
 }
 
 export interface Group {
-  _id: string;
+  id: string;
   teacherId: User;
   name: string;
   description?: string;
   students: User[];
+  studentIds?: string[];
   schedule: string[];
   createdAt: string;
 }
 
 export interface Lecture {
-  _id: string;
+  id: string;
   groupId: string | Group;
   title: string;
   description?: string;
@@ -27,11 +28,12 @@ export interface Lecture {
   scheduledDate?: string;
   isPublished: boolean;
   order: number;
+  grade: string;
   createdAt: string;
 }
 
 export interface Video {
-  _id: string;
+  id: string;
   lectureId: string;
   fileUrl: string;
   fileName: string;
@@ -49,11 +51,12 @@ export interface Question {
   type: 'multiple-choice' | 'text' | 'true-false';
   options?: string[];
   correctAnswer?: string | string[];
+  image?: string;
   points: number;
 }
 
 export interface Homework {
-  _id: string;
+  id: string;
   lectureId: string;
   title: string;
   description?: string;
@@ -64,7 +67,7 @@ export interface Homework {
 }
 
 export interface Exam {
-  _id: string;
+  id: string;
   lectureId: string;
   title: string;
   description?: string;
@@ -72,11 +75,12 @@ export interface Exam {
   maxScore: number;
   timeLimit: number;
   isActive: boolean;
+  dueDate?: string;
   createdAt: string;
 }
 
 export interface Submission {
-  _id: string;
+  id: string;
   studentId: string | User;
   homeworkId?: string | Homework;
   examId?: string | Exam;
@@ -88,7 +92,7 @@ export interface Submission {
 }
 
 export interface Score {
-  _id: string;
+  id: string;
   studentId: string | User;
   lectureId: string | Lecture;
   homeworkScore?: number;
@@ -98,7 +102,7 @@ export interface Score {
 }
 
 export interface StudentAccess {
-  _id: string;
+  id: string;
   studentId: string;
   lectureId: string;
   maxViews: number;
@@ -112,4 +116,15 @@ export interface ApiResponse<T = any> {
   message?: string;
   data?: T;
   error?: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success';
+  isActive?: boolean;
+  createdAt: string;
+  expiresAt?: string;
+  createdBy?: string;
 }

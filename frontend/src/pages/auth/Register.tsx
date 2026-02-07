@@ -53,7 +53,7 @@ const Register: React.FC = () => {
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Education Platform
+            منصة الرياضيات
           </Typography>
           <Typography component="h2" variant="h5" align="center" gutterBottom>
             Sign Up

@@ -2,6 +2,14 @@ import api from './api';
 import { ApiResponse, Lecture } from '../types/api';
 
 export const lectureService = {
+  getAll: async (): Promise<Lecture[]> => {
+    const response = await api.get<ApiResponse<Lecture[]>>('/lectures');
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || 'Failed to fetch lectures');
+  },
+
   create: async (data: Partial<Lecture>): Promise<Lecture> => {
     const response = await api.post<ApiResponse<Lecture>>('/lectures', data);
     if (response.data.success && response.data.data) {

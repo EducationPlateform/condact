@@ -46,6 +46,32 @@ public class HomeworkController : BaseController
         return Success(homeworkDto);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var homeworks = await _context.Homeworks.ToListAsync();
+        var homeworkDtos = homeworks.Select(MapToHomeworkDto).ToList();
+        return Success(homeworkDtos);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        if (!Guid.TryParse(id, out var homeworkId))
+        {
+            return Error("Invalid homework ID");
+        }
+
+        var homework = await _context.Homeworks.FindAsync(homeworkId);
+        if (homework == null)
+        {
+            return NotFound("Homework not found");
+        }
+
+        var homeworkDto = MapToHomeworkDto(homework);
+        return Success(homeworkDto);
+    }
+
     [HttpGet("lecture/{lectureId}")]
     public async Task<IActionResult> GetByLecture(string lectureId)
     {

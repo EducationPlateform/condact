@@ -61,7 +61,7 @@ const StudentScores: React.FC = () => {
           </TableHead>
           <TableBody>
             {scores.map((score) => (
-              <TableRow key={score._id}>
+              <TableRow key={score.id}>
                 <TableCell>
                   {typeof score.studentId === "object"
                     ? score.studentId.name

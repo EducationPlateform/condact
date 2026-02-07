@@ -66,10 +66,27 @@ public class VideosController : BaseController
             return Error("No video file provided");
         }
 
-        var lecture = await _context.Lectures.FindAsync(id);
+        var lecture = await _context.Lectures
+            .Include(l => l.Video)
+            .FirstOrDefaultAsync(l => l.Id == id);
+        
         if (lecture == null)
         {
             return NotFound("Lecture not found");
+        }
+
+        // Check if there's an existing video and remove it
+        if (lecture.Video != null)
+        {
+            try
+            {
+                await _fileStorageService.DeleteFileAsync(lecture.Video.FileUrl);
+                _context.Videos.Remove(lecture.Video);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to delete existing video file {FileUrl} during replacement", lecture.Video.FileUrl);
+            }
         }
 
         var fileUrl = await _fileStorageService.SaveVideoAsync(video, id);

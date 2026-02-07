@@ -10,6 +10,7 @@ public interface ISecurityViolationService
     Task<List<SecurityViolation>> GetViolationsByStudentAsync(Guid studentId);
     Task<List<SecurityViolation>> GetViolationsByLectureAsync(Guid lectureId);
     Task<List<SecurityViolation>> GetViolationsByVideoAsync(Guid videoId);
+    Task<List<SecurityViolation>> GetAllViolationsAsync();
     Task<int> GetViolationCountAsync(Guid studentId, Guid lectureId);
 }
 
@@ -74,6 +75,13 @@ public class SecurityViolationService : ISecurityViolationService
     {
         return await _context.SecurityViolations
             .Where(v => v.VideoId == videoId)
+            .OrderByDescending(v => v.DetectedAt)
+            .ToListAsync();
+    }
+
+    public async Task<List<SecurityViolation>> GetAllViolationsAsync()
+    {
+        return await _context.SecurityViolations
             .OrderByDescending(v => v.DetectedAt)
             .ToListAsync();
     }
