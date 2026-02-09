@@ -9,7 +9,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Loader2, AlertTriangle, ArrowRight, ArrowLeft, Check, ClipboardCheck } from "lucide-react";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import ExamHeader from "./ExamHeader";
 import QuestionMap from "./QuestionMap";
@@ -291,33 +291,76 @@ const ExamForm: React.FC<ExamFormProps> = ({ exam, onSubmit }) => {
 
             {/* End Exam Confirmation Dialog */}
             <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>{studentStrings.confirmSubmitTitle}</DialogTitle>
-                        <DialogDescription>
-                            {studentStrings.confirmSubmitQuestion}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4">
-                        <div className="rounded-lg bg-gray-50 p-4">
-                            <p className="mb-2 text-sm font-medium text-gray-700">
-                                {studentStrings.answerStatus}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                                {studentStrings.answeredCount(answeredCount, exam.questions.length)}
-                            </p>
-                            {answeredCount < exam.questions.length && (
-                                <p className="mt-2 text-sm text-yellow-600">
-                                    {studentStrings.unansweredWarning(exam.questions.length - answeredCount)}
-                                </p>
-                            )}
+                <DialogContent className="sm:max-w-lg">
+                    {/* Top Icon */}
+                    <div className="flex justify-center mb-4">
+                        <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+                            <Check className="h-8 w-8 text-white" />
                         </div>
                     </div>
-                    <DialogFooter className="flex-row-reverse gap-2">
+
+                    {/* Title */}
+                    <DialogTitle className="text-center text-xl font-bold mb-2">
+                        {studentStrings.confirmSubmitTitle}
+                    </DialogTitle>
+
+                    {/* Question */}
+                    <DialogDescription className="text-center text-base mb-3">
+                        {studentStrings.confirmSubmitQuestion}
+                    </DialogDescription>
+
+                    {/* Warning */}
+                    <p className="text-center text-red-600 font-semibold text-sm mb-4">
+                        {studentStrings.noEditAfterSubmit}
+                    </p>
+
+                    {/* Answer Status Section */}
+                    <div className="rounded-lg bg-gray-50 p-4 mt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <ClipboardCheck className="h-5 w-5 text-blue-600 shrink-0" />
+                            <p className="text-sm font-medium text-gray-700">
+                                {studentStrings.answerStatus}
+                            </p>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                            {(() => {
+                                const text = studentStrings.answeredCount(answeredCount, exam.questions.length);
+                                // Extract numbers and make them bold and blue
+                                const parts = text.split(/(\d+)/);
+                                return parts.map((part, idx) => 
+                                    /^\d+$/.test(part) ? (
+                                        <span key={idx} className="font-bold text-blue-600">{part}</span>
+                                    ) : (
+                                        <span key={idx}>{part}</span>
+                                    )
+                                );
+                            })()}
+                        </p>
+                        {answeredCount < exam.questions.length && (
+                            <div className="flex items-center gap-2 text-yellow-600">
+                                <AlertTriangle className="h-4 w-4" />
+                                <p className="text-sm">
+                                    {studentStrings.unansweredWarning(exam.questions.length - answeredCount)}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Buttons */}
+                    <DialogFooter className="flex-row-reverse gap-3 mt-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowEndExamDialog(false)}
+                            disabled={loading}
+                            className="bg-blue-100 hover:bg-blue-200 text-blue-700 border-blue-200"
+                        >
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            {studentStrings.returnToReview}
+                        </Button>
                         <Button
                             onClick={handleConfirmEndExam}
                             disabled={loading}
-                            className="bg-primary text-white hover:bg-primary/90"
+                            className="bg-green-600 hover:bg-green-700 text-white"
                         >
                             {loading ? (
                                 <>
@@ -325,15 +368,11 @@ const ExamForm: React.FC<ExamFormProps> = ({ exam, onSubmit }) => {
                                     جاري التسليم...
                                 </>
                             ) : (
-                                studentStrings.confirmSubmit
+                                <>
+                                    {studentStrings.confirmSubmit}
+                                    <ArrowRight className="h-4 w-4 ml-2" />
+                                </>
                             )}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowEndExamDialog(false)}
-                            disabled={loading}
-                        >
-                            {studentStrings.returnToReview}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
