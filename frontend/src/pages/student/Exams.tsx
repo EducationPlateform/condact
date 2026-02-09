@@ -1,155 +1,236 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Grid,
-  Alert,
-} from "@mui/material";
-import { Quiz } from "@mui/icons-material";
-import Layout from "../../components/common/Layout";
-import Loading from "../../components/common/Loading";
-import ExamForm from "../../components/exam/ExamForm";
-import { examService } from "../../services/examService";
-import { lectureService } from "../../services/lectureService";
-import { submissionService } from "../../services/submissionService";
-import { Exam, Lecture, Submission } from "../../types/api";
+    FileQuestion,
+    Calendar,
+    Clock,
+    Loader2,
+    ClipboardCheck,
+    CheckCircle2,
+    ArrowRight,
+    AlertCircle,
+} from "lucide-react";
+import StudentLayout from "@/components/layouts/StudentLayout";
+import { LoadingScreen } from "@/components/common/Loading";
+import ExamForm from "@/components/exam/ExamForm";
+import { studentStrings } from "@/studentStrings";
+import { examService } from "@/services/examService";
+import { lectureService } from "@/services/lectureService";
+import { submissionService } from "@/services/submissionService";
+import { groupService } from "@/services/groupService";
+import { createDummyExam } from "@/utils/dummyExam";
+import { Exam, Lecture, Submission } from "@/types/api";
 
-const Exams: React.FC = () => {
-  const [exams, setExams] = useState<{ exam: Exam; lecture: Lecture }[]>([]);
-  const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [loading, setLoading] = useState(true);
+const Exams = () => {
+    const [exams, setExams] = useState<{ exam: Exam; lecture: Lecture }[]>([]);
+    const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showLoadingScreen, setShowLoadingScreen] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const groups = await import("../../services/groupService").then((m) =>
-          m.groupService.getAll(),
-        );
-        const allExams: { exam: Exam; lecture: Lecture }[] = [];
+    useEffect(() => {
+        const abortController = new AbortController();
+        const { signal } = abortController;
 
-        for (const group of groups) {
-          try {
-            const lectures = await lectureService.getByGroup(group._id);
-            for (const lecture of lectures) {
-              try {
-                const exam = await examService.getByLecture(lecture._id);
-                allExams.push({ exam, lecture });
-              } catch (err) {
-                // No exam for this lecture
-              }
+        const fetchData = async () => {
+            try {
+                const groups = await groupService.getAll(signal);
+                const allExams: { exam: Exam; lecture: Lecture }[] = [];
+
+                for (const group of groups) {
+                    const gid = (group as { _id?: string })._id ?? group.id;
+                    try {
+                        const lectures = await lectureService.getByGroup(gid);
+                        for (const lecture of lectures) {
+                            const lid = (lecture as { _id?: string })._id ?? lecture.id;
+                            try {
+                                const exam = await examService.getByLecture(lid);
+                                allExams.push({ exam, lecture });
+                            } catch (err) {
+                                // No exam for this lecture
+                            }
+                        }
+                    } catch (err) {
+                        // Skip
+                    }
+                }
+
+                setExams(allExams);
+
+                const subs = await submissionService.getAll();
+                setSubmissions(subs.filter((s) => s.type === "exam"));
+            } catch (error) {
+                console.error("Failed to fetch exams:", error);
+            } finally {
+                if (!abortController.signal.aborted) setLoading(false);
             }
-          } catch (err) {
-            // Skip
-          }
-        }
+        };
 
-        setExams(allExams);
+        fetchData();
+        return () => abortController.abort();
+    }, []);
 
-        const subs = await submissionService.getAll();
-        setSubmissions(subs.filter((s) => s.type === "exam"));
-      } catch (error) {
-        console.error("Failed to fetch exams:", error);
-      } finally {
-        setLoading(false);
-      }
+    const hasSubmitted = (examId: string) => {
+        return submissions.some(
+            (s) =>
+                s.examId === examId ||
+                (typeof s.examId === "object" && (s.examId as { _id?: string })._id === examId),
+        );
     };
 
-    fetchData();
-  }, []);
+    if (showLoadingScreen || loading) {
+        if (showLoadingScreen) {
+            return <LoadingScreen duration={5000} onComplete={() => setShowLoadingScreen(false)} />;
+        }
+        return (
+            <StudentLayout>
+                <div className="flex h-[80vh] w-full items-center justify-center">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                </div>
+            </StudentLayout>
+        );
+    }
 
-  const hasSubmitted = (examId: string) => {
-    return submissions.some(
-      (s) =>
-        s.examId === examId ||
-        (typeof s.examId === "object" && s.examId._id === examId),
-    );
-  };
+    if (selectedExam) {
+        return (
+            <ExamForm
+                exam={selectedExam}
+                onSubmit={() => {
+                    setSelectedExam(null);
+                    // Refresh
+                }}
+            />
+        );
+    }
 
-  if (loading) {
     return (
-      <Layout>
-        <Loading />
-      </Layout>
-    );
-  }
+        <StudentLayout>
+            <div className="mx-auto max-w-7xl">
+                {/* Page Title */}
+                <h1 className="mb-8 text-3xl font-extrabold text-gray-900">
+                    {studentStrings.myExams}
+                </h1>
 
-  if (selectedExam) {
-    return (
-      <Layout>
-        <Button onClick={() => setSelectedExam(null)} sx={{ mb: 2 }}>
-          Back to Exams
-        </Button>
-        <ExamForm
-          exam={selectedExam}
-          onSubmit={() => {
-            setSelectedExam(null);
-            // Refresh
-          }}
-        />
-      </Layout>
-    );
-  }
+                {/* Dummy Exam Card for Testing */}
+                <Card className="mb-6 rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/50">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="mb-1 text-lg font-bold text-gray-900">
+                                    اختبار تجريبي
+                                </h3>
+                                <p className="text-sm text-gray-600">
+                                    اختبار تجريبي مع 20 سؤال للتعرف على واجهة الامتحان
+                                </p>
+                            </div>
+                            <Button
+                                onClick={() => setSelectedExam(createDummyExam())}
+                                className="bg-primary text-white hover:bg-primary/90"
+                            >
+                                {studentStrings.startExam}
+                                <ArrowRight className="h-4 w-4 ml-2 rotate-180" />
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
 
-  return (
-    <Layout>
-      <Typography variant="h4" gutterBottom>
-        My Exams
-      </Typography>
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        {exams.map((item) => {
-          const submitted = hasSubmitted(item.exam._id);
-          return (
-            <Grid item xs={12} md={6} key={item.exam._id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {item.exam.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Lecture:{" "}
-                    {typeof item.lecture === "object"
-                      ? item.lecture.title
-                      : "Unknown"}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    {item.exam.questions.length} questions • Max Score:{" "}
-                    {item.exam.maxScore} • Time Limit: {item.exam.timeLimit}{" "}
-                    minutes
-                  </Typography>
-                  {submitted && (
-                    <Alert severity="info" sx={{ mt: 2 }}>
-                      You have already submitted this exam
-                    </Alert>
-                  )}
-                </CardContent>
-                <CardActions>
-                  <Button
-                    size="small"
-                    startIcon={<Quiz />}
-                    onClick={() => setSelectedExam(item.exam)}
-                    disabled={submitted || !item.exam.isActive}
-                  >
-                    {submitted ? "Already Submitted" : "Start Exam"}
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          );
-        })}
-        {exams.length === 0 && (
-          <Grid item xs={12}>
-            <Typography variant="body1" color="text.secondary" align="center">
-              No exams available
-            </Typography>
-          </Grid>
-        )}
-      </Grid>
-    </Layout>
-  );
+                {/* Exam Cards Grid */}
+                {exams.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {exams.map((item) => {
+                            const examId = (item.exam as { _id?: string })._id ?? item.exam.id;
+                            const submitted = hasSubmitted(examId);
+                            const lectureTitle = typeof item.lecture === "object"
+                                ? item.lecture.title
+                                : "—";
+
+                            return (
+                                <Card
+                                    key={examId}
+                                    className="rounded-xl shadow-sm transition-shadow hover:shadow-md"
+                                >
+                                    <CardContent className="p-6">
+                                        <div className="mb-4 flex items-start justify-between">
+                                            <div className="rounded-lg bg-blue-50 p-3">
+                                                <FileQuestion className="h-6 w-6 text-primary" />
+                                            </div>
+                                            {submitted && (
+                                                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                    <CheckCircle2 className="h-3 w-3 ml-1" />
+                                                    تم التسليم
+                                                </Badge>
+                                            )}
+                                            {!item.exam.isActive && (
+                                                <Badge variant="secondary">
+                                                    غير نشط
+                                                </Badge>
+                                            )}
+                                        </div>
+
+                                        <h3 className="mb-2 text-xl font-bold text-gray-900">
+                                            {item.exam.title}
+                                        </h3>
+
+                                        <div className="mb-4 space-y-2 text-sm text-gray-600">
+                                            <div className="flex items-center gap-2">
+                                                <ClipboardCheck className="h-4 w-4" />
+                                                <span>
+                                                    {studentStrings.myLectures}: {lectureTitle}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <FileQuestion className="h-4 w-4" />
+                                                <span>
+                                                    {item.exam.questions.length} أسئلة • العلامة الكاملة: {item.exam.maxScore}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-4 w-4" />
+                                                <span>
+                                                    الوقت المحدد: {item.exam.timeLimit} دقيقة
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {submitted && (
+                                            <div className="mb-4 flex items-center gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+                                                <AlertCircle className="h-4 w-4" />
+                                                <span>لقد قمت بتسليم هذا الامتحان مسبقاً</span>
+                                            </div>
+                                        )}
+                                    </CardContent>
+
+                                    <CardFooter className="p-6 pt-0">
+                                        <Button
+                                            className="w-full bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            onClick={() => setSelectedExam(item.exam)}
+                                            disabled={submitted || !item.exam.isActive}
+                                        >
+                                            {submitted ? "تم التسليم" : studentStrings.startExam}
+                                            {!submitted && item.exam.isActive && (
+                                                <ArrowRight className="h-4 w-4 ml-2 rotate-180" />
+                                            )}
+                                        </Button>
+                                    </CardFooter>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                        <FileQuestion className="mb-4 h-16 w-16 text-gray-400" />
+                        <p className="text-lg text-gray-500">
+                            لا توجد امتحانات متاحة
+                        </p>
+                    </div>
+                )}
+            </div>
+        </StudentLayout>
+    );
 };
 
 export default Exams;

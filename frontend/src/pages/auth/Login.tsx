@@ -50,8 +50,8 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      await login(email, password);
-      navigate("/");
+      const user = await login(email, password, rememberMe);
+      navigate(user.role === "teacher" ? "/teacher" : "/student");
     } catch (error: any) {
       toast({
         title: "فشل تسجيل الدخول",

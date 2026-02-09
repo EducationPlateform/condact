@@ -4,6 +4,7 @@ import { ApiResponse, User } from '../types/api';
 interface LoginData {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 interface RegisterData {
@@ -18,12 +19,22 @@ interface AuthResponse {
   user: User;
 }
 
+const tokenStorage = (persistent: boolean) => (persistent ? localStorage : sessionStorage);
+
 export const authService = {
   login: async (data: LoginData): Promise<AuthResponse> => {
-    const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', data);
+    const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', { email: data.email, password: data.password });
     if (response.data.success && response.data.data) {
-      localStorage.setItem('token', response.data.data.token);
-      return response.data.data;
+      const authData = response.data.data;
+      const token = (authData.token ?? '').trim();
+      if (!token) {
+        throw new Error(
+          response.data.message || 'Server did not return a token. Ensure the API is running and the frontend proxy target matches the backend (e.g. https://localhost:7067).'
+        );
+      }
+      const persistent = data.rememberMe !== false;
+      tokenStorage(persistent).setItem('token', token);
+      return authData;
     }
     throw new Error(response.data.message || 'Login failed');
   },
@@ -31,7 +42,9 @@ export const authService = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', data);
     if (response.data.success && response.data.data) {
-      localStorage.setItem('token', response.data.data.token);
+      const persistent = (data as RegisterData & { rememberMe?: boolean }).rememberMe !== false;
+      const token = (response.data.data.token || '').trim();
+      tokenStorage(persistent).setItem('token', token);
       return response.data.data;
     }
     throw new Error(response.data.message || 'Registration failed');
@@ -47,5 +60,8 @@ export const authService = {
 
   logout: (): void => {
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    localStorage.removeItem('auth_user');
+    sessionStorage.removeItem('auth_user');
   },
 };

@@ -10,8 +10,8 @@ export const groupService = {
     throw new Error(response.data.message || 'Failed to create group');
   },
 
-  getAll: async (): Promise<Group[]> => {
-    const response = await api.get<ApiResponse<Group[]>>('/groups');
+  getAll: async (signal?: AbortSignal): Promise<Group[]> => {
+    const response = await api.get<ApiResponse<Group[]>>('/groups', { signal });
     if (response.data.success && response.data.data) {
       return response.data.data;
     }

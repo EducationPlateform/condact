@@ -24,6 +24,7 @@ import {
   Analytics,
 } from "@mui/icons-material";
 import { useAuth } from "../../context/AuthContext";
+import { studentStrings } from "../../studentStrings";
 
 const drawerWidth = 240;
 
@@ -37,12 +38,12 @@ const Sidebar: React.FC = () => {
 
     if (user.role === "student") {
       return [
-        { text: "Dashboard", icon: <Dashboard />, path: "/student" },
-        { text: "Lectures", icon: <School />, path: "/student/lectures" },
-        { text: "Homework", icon: <Assignment />, path: "/student/homework" },
-        { text: "Exams", icon: <Quiz />, path: "/student/exams" },
-        { text: "Scores", icon: <Assessment />, path: "/student/scores" },
-        { text: "Profile", icon: <Person />, path: "/student/profile" },
+        { text: studentStrings.dashboard, icon: <Dashboard />, path: "/student" },
+        { text: studentStrings.lectures, icon: <School />, path: "/student/lectures" },
+        { text: studentStrings.homework, icon: <Assignment />, path: "/student/homework" },
+        { text: studentStrings.exams, icon: <Quiz />, path: "/student/exams" },
+        { text: studentStrings.scores, icon: <Assessment />, path: "/student/scores" },
+        { text: studentStrings.profile, icon: <Person />, path: "/student/profile" },
       ];
     }
 
@@ -94,7 +95,7 @@ const Sidebar: React.FC = () => {
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: 0,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
           width: drawerWidth,
@@ -102,7 +103,7 @@ const Sidebar: React.FC = () => {
         },
       }}
     >
-      <Toolbar />
+      <SidebarToolbar isStudent={user?.role === "student"} />
       <Box sx={{ overflow: "auto" }}>
         <List>
           {menuItems.map((item) => (
@@ -122,7 +123,7 @@ const Sidebar: React.FC = () => {
   );
 };
 
-const Toolbar = () => (
+const SidebarToolbar: React.FC<{ isStudent: boolean }> = ({ isStudent }) => (
   <Box
     sx={{
       height: 64,
@@ -134,7 +135,7 @@ const Toolbar = () => (
     }}
   >
     <Typography variant="h6" noWrap component="div">
-      Menu
+      {isStudent ? studentStrings.menu : "Menu"}
     </Typography>
   </Box>
 );

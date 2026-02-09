@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Minus, X, Equal } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { studentStrings } from "../../studentStrings";
 
-export default function Loading() {
+interface LoadingProps {
+  label?: string;
+}
+
+export default function Loading({ label }: LoadingProps) {
+  const location = useLocation();
+  const isStudent = location.pathname.startsWith("/student");
+  const displayLabel = label ?? (isStudent ? studentStrings.loading : undefined);
+
   return (
-    <div className="flex h-full w-full items-center justify-center p-8">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-8">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      {displayLabel && (
+        <span className="text-sm text-muted-foreground">{displayLabel}</span>
+      )}
     </div>
   );
 }

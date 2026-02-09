@@ -1,29 +1,43 @@
 import React from 'react';
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { useAuth } from '../../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { user } = useAuth();
+  const isStudent = user?.role === 'student';
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} dir={isStudent ? 'rtl' : undefined}>
       <Header />
-      <Sidebar />
       <Box
-        component="main"
         sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - 240px)` },
-          ml: { sm: '240px' },
-          mt: '64px',
+          display: 'flex',
+          flex: 1,
+          minHeight: 0,
         }}
       >
-        <Toolbar />
-        {children}
+        <Sidebar />
+        <Box
+          component="main"
+          className={isStudent ? 'font-notoSansArabic' : undefined}
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: 0,
+            overflow: 'auto',
+            bgcolor: 'background.default',
+            p: 3,
+            pt: 2,
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );

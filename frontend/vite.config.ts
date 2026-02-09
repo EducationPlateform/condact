@@ -14,8 +14,10 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://localhost:5077",
+        // Match backend: use 7067 for HTTPS profile, or 5077 for HTTP
+        target: process.env.VITE_API_URL || "https://localhost:7067",
         changeOrigin: true,
+        secure: false,
       },
     },
   },
