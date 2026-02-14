@@ -3,7 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy Solution and Project files first for caching
-COPY backend/EducationPlatform.sln ./
+# Copy Solution and Project files first for caching
+COPY backend/EducationPlatform.sln ./backend/
 COPY backend/EducationPlatform.API/*.csproj ./backend/EducationPlatform.API/
 COPY backend/EducationPlatform.Domain/*.csproj ./backend/EducationPlatform.Domain/
 COPY backend/EducationPlatform.Infrastructure/*.csproj ./backend/EducationPlatform.Infrastructure/
