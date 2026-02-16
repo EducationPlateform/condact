@@ -1,7 +1,12 @@
 import axios, { AxiosInstance } from 'axios';
 
+// Use VITE_API_URL when set (deployed backend); otherwise /api (local dev via Vite proxy)
+const apiBase = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
+  : '/api';
+
 const api: AxiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: apiBase,
   headers: {
     'Content-Type': 'application/json',
   },
