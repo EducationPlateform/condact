@@ -35,7 +35,7 @@ const HomeworkForm: React.FC<HomeworkFormProps> = ({ homework, onSubmit }) => {
     setError('');
 
     try {
-      const result = await submissionService.submitHomework(homework._id, answers);
+      const result = await submissionService.submitHomework(homework._id ?? homework.id, answers);
       setScore(result.score || 0);
       setSubmitted(true);
       onSubmit(result.score || 0);

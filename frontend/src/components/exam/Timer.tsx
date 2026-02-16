@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Clock } from 'lucide-react';
 
 interface TimerProps {
     timeLimit: number; // in minutes
@@ -32,12 +31,6 @@ const Timer: React.FC<TimerProps> = ({ timeLimit, onTimeUp, onTimeUpdate }) => {
 
         return () => clearInterval(timer);
     }, [timeLeft, timeLimit, onTimeUp, onTimeUpdate]);
-
-    const formatTime = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
 
     // This component is now just for logic - display is handled by ExamHeader
     return null;

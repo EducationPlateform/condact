@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Award, TrendingUp } from "lucide-react";
+import { Loader2, Award } from "lucide-react";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import { LoadingScreen } from "@/components/common/Loading";
 import { studentStrings } from "@/studentStrings";

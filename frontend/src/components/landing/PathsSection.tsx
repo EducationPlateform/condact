@@ -72,7 +72,7 @@ const PathsSection = () => {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
+      const { clientWidth } = scrollRef.current;
       // In RTL, positive scrollLeft is to the left, but behavior can vary by browser.
       // Usually, scrolling "right" means scrollLeft increases (towards 0 if it was negative)
       // or decreases if it was positive. Let's use a simpler approach.

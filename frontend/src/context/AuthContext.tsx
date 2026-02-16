@@ -23,18 +23,6 @@ function getStorageWithToken(): Storage {
   return localStorage.getItem('token') ? localStorage : sessionStorage;
 }
 
-function getCachedUser(): User | null {
-  const raw = localStorage.getItem(AUTH_USER_KEY) || sessionStorage.getItem(AUTH_USER_KEY);
-  if (!raw) return null;
-  try {
-    const u = JSON.parse(raw) as User;
-    if (u && u.id && u.role) return u;
-  } catch {
-    // ignore
-  }
-  return null;
-}
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

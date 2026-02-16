@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { UploadCloud, CheckCircle, AlertCircle, FileVideo, Users, BookOpen } from "lucide-react";
+import { UploadCloud, CheckCircle, AlertCircle, Users, BookOpen } from "lucide-react";
 import TeacherLayout from "@/components/layouts/TeacherLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -122,7 +122,7 @@ const VideoUpload: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
                     {groups.map((group) => (
-                      <SelectItem key={group._id} value={group._id}>
+                      <SelectItem key={group._id ?? group.id} value={group._id ?? group.id}>
                         {group.name}
                       </SelectItem>
                     ))}
@@ -145,7 +145,7 @@ const VideoUpload: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
                     {lectures.map((lecture) => (
-                      <SelectItem key={lecture._id} value={lecture._id}>
+                      <SelectItem key={lecture._id ?? lecture.id} value={lecture._id ?? lecture.id}>
                         {lecture.title}
                       </SelectItem>
                     ))}

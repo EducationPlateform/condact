@@ -27,19 +27,6 @@ import { announcementService } from "@/services/announcementService";
 import { studentStrings } from "@/studentStrings";
 import { Announcement, Lecture } from "@/types/api";
 
-function formatTimeAgo(createdAt: string): string {
-    const date = new Date(createdAt);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays >= 2) return studentStrings.timeAgoDays(diffDays);
-    if (diffDays === 1) return studentStrings.timeAgoYesterday;
-    if (diffHours >= 2) return studentStrings.timeAgoHours(2);
-    if (diffHours >= 1) return studentStrings.timeAgoHours(1);
-    return studentStrings.timeAgoHours(0);
-}
-
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [showLoadingScreen, setShowLoadingScreen] = useState(true);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -8,7 +8,6 @@ import {
     Lock,
     Plus,
     ArrowLeft,
-    Award,
     Loader2,
     BookOpen,
 } from "lucide-react";
@@ -162,7 +161,6 @@ const Lectures = () => {
     const getNextLecture = (course: CourseData): Lecture | null => {
         // Find first lecture that hasn't been completed
         for (const lecture of course.lectures) {
-            const lid = (lecture as { _id?: string })._id ?? lecture.id;
             // For now, return first published lecture
             if (lecture.isPublished) {
                 return lecture;
@@ -262,7 +260,6 @@ const Lectures = () => {
                             {/* Course Cards */}
                             {courses.map((course) => {
                                 const groupId = (course.group as { _id?: string })._id ?? course.group.id;
-                                const nextLecture = getNextLecture(course);
                                 
                                 return (
                                     <Card

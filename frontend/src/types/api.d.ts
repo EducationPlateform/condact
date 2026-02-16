@@ -1,5 +1,6 @@
 export interface User {
   id: string;
+  _id?: string;
   email: string;
   name: string;
   role: 'admin' | 'teacher' | 'student';
@@ -9,6 +10,7 @@ export interface User {
 
 export interface Group {
   id: string;
+  _id?: string; // MongoDB ID when returned from API
   teacherId: User;
   name: string;
   description?: string;
@@ -20,6 +22,7 @@ export interface Group {
 
 export interface Lecture {
   id: string;
+  _id?: string; // MongoDB ID when returned from API
   groupId: string | Group;
   title: string;
   description?: string;
@@ -34,6 +37,7 @@ export interface Lecture {
 
 export interface Video {
   id: string;
+  _id?: string;
   lectureId: string;
   fileUrl: string;
   fileName: string;
@@ -57,6 +61,7 @@ export interface Question {
 
 export interface Homework {
   id: string;
+  _id?: string;
   lectureId: string;
   title: string;
   description?: string;

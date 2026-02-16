@@ -36,7 +36,7 @@ interface ProcessedLecture {
 
 const LectureDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const { user } = useAuth();
+    useAuth();
     const navigate = useNavigate();
     const [lecture, setLecture] = useState<Lecture | null>(null);
     const [video, setVideo] = useState<Video | null>(null);
@@ -50,7 +50,6 @@ const LectureDetail = () => {
 
     useEffect(() => {
         const abortController = new AbortController();
-        const { signal } = abortController;
 
         const fetchData = async () => {
             if (!id) {
@@ -415,7 +414,7 @@ const LectureDetail = () => {
                                 </div>
 
                                 <div className="space-y-2 mb-6">
-                                    {groupLectures.map((item, index) => {
+                                    {groupLectures.map((item) => {
                                         const lid = (item.lecture as { _id?: string })._id ?? item.lecture.id;
                                         const isActive = lid === lectureId;
                                         const duration = item.video?.duration || 0;

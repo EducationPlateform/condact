@@ -133,7 +133,7 @@ const AccessExtension: React.FC = () => {
               onChange={(e) => setSelectedStudent(e.target.value)}
             >
               {students.map((student) => (
-                <MenuItem key={student._id} value={student._id}>
+                <MenuItem key={student._id ?? student.id} value={student._id ?? student.id}>
                   {student.name} ({student.email})
                 </MenuItem>
               ))}
