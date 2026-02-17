@@ -23,6 +23,9 @@ const tokenStorage = (persistent: boolean) => (persistent ? localStorage : sessi
 
 export const authService = {
   login: async (data: LoginData): Promise<AuthResponse> => {
+    // #region agent log
+    try{const base=api.defaults?.baseURL||'unknown';const fullUrl=`${base}/auth/login`;fetch('http://127.0.0.1:7244/ingest/de8b7576-bb72-4e08-ad15-b90eab22bd1d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c5b622'},body:JSON.stringify({sessionId:'c5b622',location:'authService.ts:login',message:'Login request starting',data:{baseURL:base,fullUrl},timestamp:Date.now(),hypothesisId:'A,C'})}).catch(()=>{});}catch(_){}
+    // #endregion
     const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', { email: data.email, password: data.password });
     if (response.data.success && response.data.data) {
       const authData = response.data.data;
@@ -40,6 +43,9 @@ export const authService = {
   },
 
   register: async (data: RegisterData): Promise<AuthResponse> => {
+    // #region agent log
+    try{const base=api.defaults?.baseURL||'unknown';const fullUrl=`${base}/auth/register`;fetch('http://127.0.0.1:7244/ingest/de8b7576-bb72-4e08-ad15-b90eab22bd1d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c5b622'},body:JSON.stringify({sessionId:'c5b622',location:'authService.ts:register',message:'Register request starting',data:{baseURL:base,fullUrl},timestamp:Date.now(),hypothesisId:'A,C'})}).catch(()=>{});}catch(_){}
+    // #endregion
     const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', data);
     if (response.data.success && response.data.data) {
       const persistent = (data as RegisterData & { rememberMe?: boolean }).rememberMe !== false;

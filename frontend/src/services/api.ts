@@ -5,6 +5,10 @@ const apiBase = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
   : '/api';
 
+// #region agent log
+try{fetch('http://127.0.0.1:7244/ingest/de8b7576-bb72-4e08-ad15-b90eab22bd1d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c5b622'},body:JSON.stringify({sessionId:'c5b622',location:'api.ts:init',message:'API base URL at load',data:{apiBase,viteApiUrl:import.meta.env.VITE_API_URL},timestamp:Date.now(),hypothesisId:'A,C'})}).catch(()=>{});}catch(_){}
+// #endregion
+
 const api: AxiosInstance = axios.create({
   baseURL: apiBase,
   headers: {
@@ -36,6 +40,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // #region agent log
+    try{const fullUrl=error.config?.baseURL&&error.config?.url?`${error.config.baseURL}${error.config.url}`:'unknown';fetch('http://127.0.0.1:7244/ingest/de8b7576-bb72-4e08-ad15-b90eab22bd1d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c5b622'},body:JSON.stringify({sessionId:'c5b622',location:'api.ts:error',message:'Request failed',data:{fullUrl,baseURL:error.config?.baseURL,url:error.config?.url,message:error.message,status:error.response?.status,isCors:error.message?.toLowerCase().includes('cors')||error.message?.toLowerCase().includes('network')},timestamp:Date.now(),hypothesisId:'B,C,E'})}).catch(()=>{});}catch(_){}
+    // #endregion
     if (error.response?.status === 401) {
       const isAuthMe = typeof error.config?.url === 'string' && error.config.url.includes('/auth/me');
       if (!isAuthMe) {
