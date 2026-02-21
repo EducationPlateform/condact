@@ -56,8 +56,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(ConvertUrlConnectionString(connectionString)));
 
 // Configure JWT Authentication
+var secretKey = Environment.GetEnvironmentVariable("JwtSettings_SecretKey")
+                ?? Environment.GetEnvironmentVariable("JwtSettings__SecretKey")
+                ?? builder.Configuration.GetSection("JwtSettings")["SecretKey"]
+                ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
 builder.Services.AddAuthentication(options =>
     {
@@ -82,9 +86,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // Configure CORS
-var allowedOriginsSection = builder.Configuration.GetSection("Cors:AllowedOrigins");
-var allowedOrigins = allowedOriginsSection.Get<string[]>()
-                     ?? builder.Configuration["Cors:AllowedOrigins"]?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+var allowedOrigins = Environment.GetEnvironmentVariable("Cors_AllowedOrigins")
+                         ?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                     ?? Environment.GetEnvironmentVariable("Cors__AllowedOrigins")
+                         ?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                     ?? builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
                      ?? new[] { "http://localhost:5173", "http://localhost:3000" };
 
 allowedOrigins = allowedOrigins
