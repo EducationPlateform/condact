@@ -23,6 +23,9 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 EXPOSE 8080
+
+# Install ffmpeg for video processing
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 # ASPNETCORE_URLS will be set dynamically or we listen on PORT env var
 
 

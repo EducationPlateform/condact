@@ -1,5 +1,4 @@
 using EducationPlatform.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace EducationPlatform.API.Services;
 
@@ -33,8 +32,8 @@ public class VideoProcessingService : IVideoProcessingService
     public async Task<ProcessedVideo> ProcessVideoAsync(string inputPath, Guid videoId)
     {
         var ffmpegPath = _configuration["VideoProcessing:FfmpegPath"] ?? "ffmpeg";
-        var enableHls = _configuration.GetValue<bool>("VideoProcessing:EnableHls", true);
-        var enableDash = _configuration.GetValue<bool>("VideoProcessing:EnableDash", true);
+        var enableHls = _configuration.GetValue("VideoProcessing:EnableHls", true);
+        var enableDash = _configuration.GetValue("VideoProcessing:EnableDash", true);
 
         var outputDir = Path.Combine(
             _environment.ContentRootPath,
@@ -109,10 +108,10 @@ public class VideoProcessingService : IVideoProcessingService
 
         // FFmpeg command to generate HLS
         var args = $"-i \"{videoPath}\" " +
-                  $"-c:v libx264 -c:a aac " +
-                  $"-hls_time 10 -hls_list_size 0 " +
-                  $"-hls_segment_filename \"{segmentPattern}\" " +
-                  $"\"{manifestPath}\" -y";
+                   $"-c:v libx264 -c:a aac " +
+                   $"-hls_time 10 -hls_list_size 0 " +
+                   $"-hls_segment_filename \"{segmentPattern}\" " +
+                   $"\"{manifestPath}\" -y";
 
         var processStartInfo = new System.Diagnostics.ProcessStartInfo
         {
@@ -159,11 +158,11 @@ public class VideoProcessingService : IVideoProcessingService
 
         // FFmpeg command to generate DASH
         var args = $"-i \"{videoPath}\" " +
-                  $"-c:v libx264 -c:a aac " +
-                  $"-f dash -seg_duration 10 -use_timeline 1 -use_template 1 " +
-                  $"-init_seg_name \"init_$RepresentationID$.m4s\" " +
-                  $"-media_seg_name \"{segmentPattern}\" " +
-                  $"\"{manifestPath}\" -y";
+                   $"-c:v libx264 -c:a aac " +
+                   $"-f dash -seg_duration 10 -use_timeline 1 -use_template 1 " +
+                   $"-init_seg_name \"init_$RepresentationID$.m4s\" " +
+                   $"-media_seg_name \"{segmentPattern}\" " +
+                   $"\"{manifestPath}\" -y";
 
         var processStartInfo = new System.Diagnostics.ProcessStartInfo
         {
@@ -198,13 +197,10 @@ public class VideoProcessingService : IVideoProcessingService
     {
         try
         {
-            // FFmpeg command to get video duration
-            var args = $"-i \"{videoPath}\" 2>&1 | findstr /R \"Duration\"";
-
             var processStartInfo = new System.Diagnostics.ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = $"/c {ffmpegPath} -i \"{videoPath}\" 2>&1",
+                FileName = ffmpegPath,
+                Arguments = $"-i \"{videoPath}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -220,6 +216,7 @@ public class VideoProcessingService : IVideoProcessingService
             var output = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
 
+            // FFmpeg outputs metadata to StandardError
             // Parse duration from output (format: Duration: HH:MM:SS.mm)
             var durationMatch = System.Text.RegularExpressions.Regex.Match(
                 output,

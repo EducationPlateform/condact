@@ -11,12 +11,17 @@ using EducationPlatform.API.Swagger;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure dynamic port for Render
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{port}");
+
+// Increase multipart body size limit for video uploads (e.g., 500MB)
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 524288000; // 500 MB
+});
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
