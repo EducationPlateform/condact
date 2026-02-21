@@ -120,7 +120,6 @@ const LectureEditor: React.FC = () => {
 
     setLoading(true);
     try {
-      let lectureId = id;
       // Combine date and time for backend
       const combinedScheduledDate = formData.scheduledDate && formData.startTime
         ? `${formData.scheduledDate}T${formData.startTime}:00`
@@ -134,17 +133,17 @@ const LectureEditor: React.FC = () => {
       if (id) {
         await lectureService.update(id, payload);
         toast({ title: "تم التحديث", description: "تم تحديث بيانات المحاضرة بنجاح" });
-      } else {
-        const newLecture = await lectureService.create(payload);
-        lectureId = newLecture.id;
-        toast({ title: "تم الإنشاء", description: "تم إنشاء المحاضرة بنجاح" });
-      }
 
-      // Handle video upload if provided
-      if (file && lectureId) {
-        toast({ title: "جاري الرفع", description: "بدأ رفع الفيديو، يرجى الانتظار..." });
-        await videoService.upload(lectureId, file);
-        toast({ title: "اكتمل الرفع", description: "تم رفع الفيديو بنجاح" });
+        // Handle video upload separately for updates if provided
+        if (file) {
+          toast({ title: "جاري الرفع", description: "بدأ رفع الفيديو، يرجى الانتظار..." });
+          await videoService.upload(id, file);
+          toast({ title: "اكتمل الرفع", description: "تم رفع الفيديو بنجاح" });
+        }
+      } else {
+        toast({ title: "جاري الحفظ", description: "بدأ إنشاء المحاضرة ورفع الفيديو، يرجى الانتظار..." });
+        await lectureService.create(payload, file || undefined);
+        toast({ title: "اكتمل الحفظ", description: "تم إنشاء المحاضرة والرفع بنجاح" });
       }
 
       navigate("/teacher/lectures");

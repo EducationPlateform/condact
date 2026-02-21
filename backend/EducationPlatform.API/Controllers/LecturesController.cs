@@ -13,42 +13,138 @@ public class LecturesController : BaseController
 {
     private readonly ApplicationDbContext _context;
     private readonly IFileStorageService _fileStorageService;
+    private readonly IWebHostEnvironment _environment;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<LecturesController> _logger;
 
-    public LecturesController(ApplicationDbContext context, IFileStorageService fileStorageService)
+    public LecturesController(
+        ApplicationDbContext context,
+        IFileStorageService fileStorageService,
+        IWebHostEnvironment environment,
+        IConfiguration configuration,
+        ILogger<LecturesController> logger)
     {
         _context = context;
         _fileStorageService = fileStorageService;
+        _environment = environment;
+        _configuration = configuration;
+        _logger = logger;
     }
 
     [HttpPost]
     [Authorize(Roles = "Teacher,Admin")]
-    public async Task<IActionResult> Create([FromBody] CreateLectureRequest request)
+    [Consumes("multipart/form-data")]
+    [DisableRequestSizeLimit]
+    public async Task<IActionResult> Create([FromForm] CreateLectureRequest request, IFormFile? video)
     {
         if (!Guid.TryParse(request.GroupId, out var groupId))
         {
             return Error("Invalid group ID");
         }
 
-        var lecture = new Domain.Entities.Lecture
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            Id = Guid.NewGuid(),
-            GroupId = groupId,
-            Title = request.Title,
-            Description = request.Description,
-            ScheduledDate = !string.IsNullOrEmpty(request.ScheduledDate)
-                ? DateTime.SpecifyKind(DateTime.Parse(request.ScheduledDate), DateTimeKind.Utc)
-                : null,
-            IsPublished = request.IsPublished ?? false,
-            Order = request.Order ?? 0,
-            CreatedAt = DateTime.UtcNow,
-            Grade = request.Grade ?? string.Empty
-        };
+            var lecture = new Domain.Entities.Lecture
+            {
+                Id = Guid.NewGuid(),
+                GroupId = groupId,
+                Title = request.Title,
+                Description = request.Description,
+                ScheduledDate = !string.IsNullOrEmpty(request.ScheduledDate)
+                    ? DateTime.SpecifyKind(DateTime.Parse(request.ScheduledDate), DateTimeKind.Utc)
+                    : null,
+                IsPublished = request.IsPublished ?? false,
+                Order = request.Order ?? 0,
+                CreatedAt = DateTime.UtcNow,
+                Grade = request.Grade ?? string.Empty
+            };
 
-        _context.Lectures.Add(lecture);
-        await _context.SaveChangesAsync();
+            _context.Lectures.Add(lecture);
 
-        var lectureDto = await MapToLectureDtoAsync(lecture);
-        return Success(lectureDto);
+            string? fullVideoPath = null;
+
+            if (video != null && video.Length > 0)
+            {
+                var fileUrl = await _fileStorageService.SaveVideoAsync(video, lecture.Id);
+                fullVideoPath = Path.Combine(_environment.ContentRootPath, fileUrl);
+
+                var videoEntity = new Domain.Entities.Video
+                {
+                    Id = Guid.NewGuid(),
+                    LectureId = lecture.Id,
+                    FileUrl = fileUrl,
+                    FileName = video.FileName,
+                    UploadDate = DateTime.UtcNow,
+                    SecurityConfig = "{\"drmEnabled\":false,\"watermarkEnabled\":true}"
+                };
+
+                _context.Videos.Add(videoEntity);
+                lecture.VideoId = videoEntity.Id;
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            // Background processing if video exists
+            if (fullVideoPath != null && lecture.VideoId.HasValue)
+            {
+                var videoId = lecture.VideoId.Value;
+                var serviceProvider = HttpContext.RequestServices;
+                _ = Task.Run(async () =>
+                {
+                    using (var scope = serviceProvider.CreateScope())
+                    {
+                        var scopedContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        var scopedVideoProcessing = scope.ServiceProvider.GetRequiredService<IVideoProcessingService>();
+                        var scopedLogger = scope.ServiceProvider.GetRequiredService<ILogger<LecturesController>>();
+
+                        try
+                        {
+                            var ffmpegPath = _configuration["VideoProcessing:FfmpegPath"] ?? "ffmpeg";
+                            var duration = await scopedVideoProcessing.GetVideoDurationAsync(fullVideoPath, ffmpegPath);
+                            if (duration.HasValue)
+                            {
+                                var videoInScope = await scopedContext.Videos.FindAsync(videoId);
+                                if (videoInScope != null)
+                                {
+                                    videoInScope.Duration = duration.Value;
+                                    await scopedContext.SaveChangesAsync();
+                                }
+                            }
+
+                            var enableHls = _configuration.GetValue("VideoProcessing:EnableHls", true);
+                            if (enableHls)
+                            {
+                                try
+                                {
+                                    await scopedVideoProcessing.GenerateHlsManifestAsync(fullVideoPath, videoId,
+                                        ffmpegPath);
+                                }
+                                catch (Exception ex)
+                                {
+                                    scopedLogger.LogError(ex, "Failed to generate HLS manifest for video {VideoId}",
+                                        videoId);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            scopedLogger.LogError(ex, "Error processing video {VideoId}", videoId);
+                        }
+                    }
+                });
+            }
+
+            var lectureDto = await MapToLectureDtoAsync(lecture);
+            return Success(lectureDto);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Failed to create lecture with video");
+            return Error("Failed to create lecture: " + ex.Message);
+        }
     }
 
     [HttpGet("group/{groupId}")]
@@ -170,7 +266,7 @@ public class LecturesController : BaseController
         _context.Lectures.Remove(lecture);
         await _context.SaveChangesAsync();
 
-        return Success<object>(null, "Lecture deleted successfully");
+        return Success<object>(new { }, "Lecture deleted successfully");
     }
 
     [HttpPost("{id}/pdfs")]
@@ -238,7 +334,7 @@ public class LecturesController : BaseController
 
     private LectureDto MapToLectureDto(Domain.Entities.Lecture lecture)
     {
-        var pdfFiles = lecture.PdfFiles?.Select(pf => pf.FileUrl).ToList() ?? new List<string>();
+        var pdfFiles = lecture.PdfFiles.Select(pf => pf.FileUrl).ToList();
 
         return new LectureDto
         {
