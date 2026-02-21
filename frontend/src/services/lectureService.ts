@@ -10,19 +10,17 @@ export const lectureService = {
     throw new Error(response.data.message || 'Failed to fetch lectures');
   },
 
-  create: async (data: Partial<Lecture>, video?: File): Promise<Lecture> => {
+  create: async (data: any, video?: File): Promise<Lecture> => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (typeof value === 'object' && !(value instanceof Blob)) {
-          // If it's a nested object (like group), we might not want to stringify it directly
-          // but for creation we usually send just the ID.
-          // Based on CreateLectureRequest on backend, it expects simple fields.
-          return;
-        }
-        formData.append(key, value.toString());
-      }
-    });
+    
+    // Explicitly append fields to ensure correct naming and types
+    if (data.groupId) formData.append('groupId', data.groupId);
+    if (data.title) formData.append('title', data.title);
+    if (data.description) formData.append('description', data.description);
+    if (data.scheduledDate) formData.append('scheduledDate', data.scheduledDate);
+    if (data.isPublished !== undefined) formData.append('isPublished', String(data.isPublished));
+    if (data.order !== undefined) formData.append('order', String(data.order));
+    if (data.grade) formData.append('grade', data.grade);
 
     if (video) {
       formData.append('video', video);

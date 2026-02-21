@@ -33,9 +33,8 @@ public class LecturesController : BaseController
 
     [HttpPost]
     [Authorize(Roles = "Teacher,Admin")]
-    [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
-    public async Task<IActionResult> Create([FromForm] CreateLectureRequest request, IFormFile? video)
+    public async Task<IActionResult> Create([FromForm] CreateLectureRequest request)
     {
         if (!Guid.TryParse(request.GroupId, out var groupId))
         {
@@ -64,9 +63,9 @@ public class LecturesController : BaseController
 
             string? fullVideoPath = null;
 
-            if (video != null && video.Length > 0)
+            if (request.Video != null && request.Video.Length > 0)
             {
-                var fileUrl = await _fileStorageService.SaveVideoAsync(video, lecture.Id);
+                var fileUrl = await _fileStorageService.SaveVideoAsync(request.Video, lecture.Id);
                 fullVideoPath = Path.Combine(_environment.ContentRootPath, fileUrl);
 
                 var videoEntity = new Domain.Entities.Video
@@ -74,7 +73,7 @@ public class LecturesController : BaseController
                     Id = Guid.NewGuid(),
                     LectureId = lecture.Id,
                     FileUrl = fileUrl,
-                    FileName = video.FileName,
+                    FileName = request.Video.FileName,
                     UploadDate = DateTime.UtcNow,
                     SecurityConfig = "{\"drmEnabled\":false,\"watermarkEnabled\":true}"
                 };
@@ -385,6 +384,7 @@ public class CreateLectureRequest
     public bool? IsPublished { get; set; }
     public int? Order { get; set; }
     public string? Grade { get; set; }
+    public IFormFile? Video { get; set; }
 }
 
 public class UpdateLectureRequest
