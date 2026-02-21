@@ -16,7 +16,7 @@ export const lectureService = {
     // Explicitly append fields to ensure correct naming and types
     if (data.groupId) formData.append('groupId', data.groupId);
     if (data.title) formData.append('title', data.title);
-    if (data.description) formData.append('description', data.description);
+    if (data.description) formData.append('description', data.description || '');
     if (data.scheduledDate) formData.append('scheduledDate', data.scheduledDate);
     if (data.isPublished !== undefined) formData.append('isPublished', String(data.isPublished));
     if (data.order !== undefined) formData.append('order', String(data.order));
