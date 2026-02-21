@@ -6,11 +6,7 @@ export const videoService = {
     const formData = new FormData();
     formData.append('video', file);
     formData.append('lectureId', lectureId);
-    const response = await api.post<ApiResponse<Video>>('/videos/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post<ApiResponse<Video>>('/videos/upload', formData);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }

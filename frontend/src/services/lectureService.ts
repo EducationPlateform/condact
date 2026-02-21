@@ -28,11 +28,7 @@ export const lectureService = {
       formData.append('video', video);
     }
 
-    const response = await api.post<ApiResponse<Lecture>>('/lectures', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post<ApiResponse<Lecture>>('/lectures', formData);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -78,12 +74,7 @@ export const lectureService = {
     });
     const response = await api.post<ApiResponse<{ pdfFiles: string[] }>>(
       `/lectures/${lectureId}/pdfs`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     if (response.data.success && response.data.data) {
       return response.data.data;
