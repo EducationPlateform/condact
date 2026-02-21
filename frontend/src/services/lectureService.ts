@@ -11,21 +11,23 @@ export const lectureService = {
   },
 
   create: async (data: any, video?: File): Promise<Lecture> => {
+    // Force a new FormData to ensure it's fresh
     const formData = new FormData();
     
-    // Explicitly append fields to ensure correct naming and types
-    if (data.groupId) formData.append('groupId', data.groupId);
-    if (data.title) formData.append('title', data.title);
-    if (data.description) formData.append('description', data.description || '');
-    if (data.scheduledDate) formData.append('scheduledDate', data.scheduledDate);
-    if (data.isPublished !== undefined) formData.append('isPublished', String(data.isPublished));
-    if (data.order !== undefined) formData.append('order', String(data.order));
-    if (data.grade) formData.append('grade', data.grade);
+    // Explicitly append fields matching the backend CreateLectureRequest properties
+    formData.append('GroupId', data.groupId || '');
+    formData.append('Title', data.title || '');
+    formData.append('Description', data.description || '');
+    formData.append('ScheduledDate', data.scheduledDate || '');
+    formData.append('IsPublished', String(data.isPublished ?? false));
+    formData.append('Order', String(data.order ?? 0));
+    formData.append('Grade', data.grade || '');
 
     if (video) {
-      formData.append('video', video);
+      formData.append('Video', video);
     }
 
+    // Do NOT set Content-Type header manually; Axios will do it with the correct boundary
     const response = await api.post<ApiResponse<Lecture>>('/lectures', formData);
     if (response.data.success && response.data.data) {
       return response.data.data;

@@ -33,20 +33,13 @@ public class LecturesController : BaseController
 
     [HttpPost]
     [Authorize(Roles = "Teacher,Admin")]
+    [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
-    public async Task<IActionResult> Create(
-        [FromForm] string groupId,
-        [FromForm] string title,
-        [FromForm] string? description,
-        [FromForm] string? scheduledDate,
-        [FromForm] bool? isPublished,
-        [FromForm] int? order,
-        [FromForm] string? grade,
-        IFormFile? video)
+    public async Task<IActionResult> Create([FromForm] CreateLectureRequest request)
     {
-        if (!Guid.TryParse(groupId, out var groupGuid))
+        if (request == null || !Guid.TryParse(request.GroupId, out var groupGuid))
         {
-            return Error("Invalid group ID");
+            return Error("Invalid group ID or request");
         }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
@@ -56,24 +49,24 @@ public class LecturesController : BaseController
             {
                 Id = Guid.NewGuid(),
                 GroupId = groupGuid,
-                Title = title,
-                Description = description,
-                ScheduledDate = !string.IsNullOrEmpty(scheduledDate)
-                    ? DateTime.SpecifyKind(DateTime.Parse(scheduledDate), DateTimeKind.Utc)
+                Title = request.Title,
+                Description = request.Description,
+                ScheduledDate = !string.IsNullOrEmpty(request.ScheduledDate)
+                    ? DateTime.SpecifyKind(DateTime.Parse(request.ScheduledDate), DateTimeKind.Utc)
                     : null,
-                IsPublished = isPublished ?? false,
-                Order = order ?? 0,
+                IsPublished = request.IsPublished ?? false,
+                Order = request.Order ?? 0,
                 CreatedAt = DateTime.UtcNow,
-                Grade = grade ?? string.Empty
+                Grade = request.Grade ?? string.Empty
             };
 
             _context.Lectures.Add(lecture);
 
             string? fullVideoPath = null;
 
-            if (video != null && video.Length > 0)
+            if (request.Video != null && request.Video.Length > 0)
             {
-                var fileUrl = await _fileStorageService.SaveVideoAsync(video, lecture.Id);
+                var fileUrl = await _fileStorageService.SaveVideoAsync(request.Video, lecture.Id);
                 fullVideoPath = Path.Combine(_environment.ContentRootPath, fileUrl);
 
                 var videoEntity = new Domain.Entities.Video
@@ -81,7 +74,7 @@ public class LecturesController : BaseController
                     Id = Guid.NewGuid(),
                     LectureId = lecture.Id,
                     FileUrl = fileUrl,
-                    FileName = video.FileName,
+                    FileName = request.Video.FileName,
                     UploadDate = DateTime.UtcNow,
                     SecurityConfig = "{\"drmEnabled\":false,\"watermarkEnabled\":true}"
                 };
