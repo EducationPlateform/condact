@@ -80,7 +80,9 @@ public class AnnouncementsController : BaseController
             Type = request.Type ?? "info",
             IsActive = request.IsActive ?? true,
             CreatedAt = DateTime.UtcNow,
-            ExpiresAt = !string.IsNullOrEmpty(request.ExpiresAt) ? DateTime.Parse(request.ExpiresAt) : null,
+            ExpiresAt = !string.IsNullOrEmpty(request.ExpiresAt)
+                ? DateTime.SpecifyKind(DateTime.Parse(request.ExpiresAt), DateTimeKind.Utc)
+                : null,
             CreatedBy = userId
         };
 
@@ -121,10 +123,10 @@ public class AnnouncementsController : BaseController
         announcement.Message = request.Message ?? announcement.Message;
         announcement.Type = request.Type ?? announcement.Type;
         announcement.IsActive = request.IsActive ?? announcement.IsActive;
-        
+
         if (!string.IsNullOrEmpty(request.ExpiresAt))
         {
-            announcement.ExpiresAt = DateTime.Parse(request.ExpiresAt);
+            announcement.ExpiresAt = DateTime.SpecifyKind(DateTime.Parse(request.ExpiresAt), DateTimeKind.Utc);
         }
 
         await _context.SaveChangesAsync();

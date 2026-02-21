@@ -37,7 +37,9 @@ public class ExamsController : BaseController
             MaxScore = request.MaxScore,
             TimeLimit = request.TimeLimit,
             IsActive = request.IsActive ?? true,
-            DueDate = !string.IsNullOrEmpty(request.DueDate) ? DateTime.Parse(request.DueDate) : null,
+            DueDate = !string.IsNullOrEmpty(request.DueDate)
+                ? DateTime.SpecifyKind(DateTime.Parse(request.DueDate), DateTimeKind.Utc)
+                : null,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -141,7 +143,7 @@ public class ExamsController : BaseController
 
         if (request.DueDate != null)
         {
-            exam.DueDate = DateTime.Parse(request.DueDate);
+            exam.DueDate = DateTime.SpecifyKind(DateTime.Parse(request.DueDate), DateTimeKind.Utc);
         }
 
         await _context.SaveChangesAsync();

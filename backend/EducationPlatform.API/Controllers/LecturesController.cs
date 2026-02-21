@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using EducationPlatform.Infrastructure.Data;
-using EducationPlatform.API.Models;
 using EducationPlatform.API.Services;
 
 namespace EducationPlatform.API.Controllers;
@@ -37,7 +35,9 @@ public class LecturesController : BaseController
             GroupId = groupId,
             Title = request.Title,
             Description = request.Description,
-            ScheduledDate = !string.IsNullOrEmpty(request.ScheduledDate) ? DateTime.Parse(request.ScheduledDate) : null,
+            ScheduledDate = !string.IsNullOrEmpty(request.ScheduledDate)
+                ? DateTime.SpecifyKind(DateTime.Parse(request.ScheduledDate), DateTimeKind.Utc)
+                : null,
             IsPublished = request.IsPublished ?? false,
             Order = request.Order ?? 0,
             CreatedAt = DateTime.UtcNow,
@@ -128,7 +128,7 @@ public class LecturesController : BaseController
 
         if (request.ScheduledDate != null)
         {
-            lecture.ScheduledDate = DateTime.Parse(request.ScheduledDate);
+            lecture.ScheduledDate = DateTime.SpecifyKind(DateTime.Parse(request.ScheduledDate), DateTimeKind.Utc);
         }
 
         if (request.IsPublished.HasValue)
@@ -175,7 +175,7 @@ public class LecturesController : BaseController
 
     [HttpPost("{id}/pdfs")]
     [Authorize(Roles = "Teacher,Admin")]
-    public async Task<IActionResult> UploadPDFs(string id, [FromForm] IFormFileCollection pdfs)
+    public async Task<IActionResult> UploadPdFs(string id, [FromForm] IFormFileCollection pdfs)
     {
         if (!Guid.TryParse(id, out var lectureId))
         {
@@ -212,7 +212,7 @@ public class LecturesController : BaseController
     }
 
     [HttpGet("{id}/pdfs/{filename}")]
-    public async Task<IActionResult> DownloadPDF(string id, string filename)
+    public async Task<IActionResult> DownloadPdf(string id, string filename)
     {
         if (!Guid.TryParse(id, out var lectureId))
         {

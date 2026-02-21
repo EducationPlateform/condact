@@ -148,7 +148,9 @@ public class AccessController : BaseController
         }
 
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var expiresAt = !string.IsNullOrEmpty(request.ExpiresAt) ? DateTime.Parse(request.ExpiresAt) : (DateTime?)null;
+        var expiresAt = !string.IsNullOrEmpty(request.ExpiresAt)
+            ? DateTime.SpecifyKind(DateTime.Parse(request.ExpiresAt), DateTimeKind.Utc)
+            : (DateTime?)null;
 
         var accessCode = await _accessControlService.GenerateCodeAsync(
             lectureId, userId, request.MaxViews, expiresAt);

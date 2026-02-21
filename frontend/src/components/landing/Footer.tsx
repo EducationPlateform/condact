@@ -13,7 +13,7 @@ const Footer = () => {
             </h4>
             <div className="flex justify-end gap-6">
               {/* Youtube Blob */}
-              <a href="https://youtube.com/@AliElsaied" className="relative group">
+              <a href="https://www.youtube.com/@alielsaied5790" className="relative group">
                 <div className="h-20 w-20 flex items-center justify-center text-white transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-red-200">
                   <img
                     src="/icons/youtube.png"
@@ -23,7 +23,7 @@ const Footer = () => {
                 </div>
               </a>
               {/* Facebook Blob */}
-              <a href="#" className="relative group">
+              <a href="https://www.facebook.com/share/17vQYe3Fpk/" className="relative group">
                 <div className="h-20 w-20 flex items-center justify-center text-white transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-red-200">
                   <img
                     src="/icons/facebook.png"
@@ -33,7 +33,7 @@ const Footer = () => {
                 </div>
               </a>
               {/* WhatsApp Blob */}
-              <a href="#" className="relative group">
+              <a href="https://wa.me/201064601237" className="relative group">
                 <div className="h-20 w-20 flex items-center justify-center text-white transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-red-200">
                   <img
                     src="/icons/whatsapp.png"

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using EducationPlatform.Domain.Entities;
-using EducationPlatform.Infrastructure.Configurations;
 
 namespace EducationPlatform.Infrastructure.Data;
 
@@ -31,5 +30,20 @@ public class ApplicationDbContext : DbContext
 
         // Apply all entity configurations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        // Global DateTime UTC Conversion
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(
+                        new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                            v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                            v => v));
+                }
+            }
+        }
     }
 }

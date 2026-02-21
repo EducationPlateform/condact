@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EducationPlatform.Infrastructure.Data;
-using EducationPlatform.API.Models;
 
 namespace EducationPlatform.API.Controllers;
 
@@ -35,7 +34,9 @@ public class HomeworkController : BaseController
             Description = request.Description,
             Questions = System.Text.Json.JsonSerializer.Serialize(request.Questions ?? new List<object>()),
             MaxScore = request.MaxScore,
-            DueDate = !string.IsNullOrEmpty(request.DueDate) ? DateTime.Parse(request.DueDate) : null,
+            DueDate = !string.IsNullOrEmpty(request.DueDate)
+                ? DateTime.SpecifyKind(DateTime.Parse(request.DueDate), DateTimeKind.Utc)
+                : null,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -129,7 +130,7 @@ public class HomeworkController : BaseController
 
         if (request.DueDate != null)
         {
-            homework.DueDate = DateTime.Parse(request.DueDate);
+            homework.DueDate = DateTime.SpecifyKind(DateTime.Parse(request.DueDate), DateTimeKind.Utc);
         }
 
         await _context.SaveChangesAsync();
@@ -167,7 +168,8 @@ public class HomeworkController : BaseController
             LectureId = homework.LectureId.ToString(),
             Title = homework.Title,
             Description = homework.Description,
-            Questions = System.Text.Json.JsonSerializer.Deserialize<List<object>>(homework.Questions) ?? new List<object>(),
+            Questions = System.Text.Json.JsonSerializer.Deserialize<List<object>>(homework.Questions) ??
+                        new List<object>(),
             MaxScore = homework.MaxScore,
             DueDate = homework.DueDate?.ToString("O"),
             CreatedAt = homework.CreatedAt.ToString("O")

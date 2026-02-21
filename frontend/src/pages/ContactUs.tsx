@@ -80,7 +80,7 @@ const ContactUs = () => {
                     <div className="space-y-4 w-full max-w-md">
                         {/* YouTube Card */}
                         <a
-                            href="https://youtube.com/@AliElsaied"
+                            href="https://www.youtube.com/@alielsaied5790"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block"
@@ -113,7 +113,7 @@ const ContactUs = () => {
 
                         {/* Facebook Card */}
                         <a
-                            href="https://facebook.com/AliElsaied"
+                            href="https://www.facebook.com/share/17vQYe3Fpk/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block"
