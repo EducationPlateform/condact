@@ -11,6 +11,7 @@ using EducationPlatform.API.Swagger;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure dynamic port for Render
