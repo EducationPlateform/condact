@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using EducationPlatform.Domain.Entities;
-using EducationPlatform.Domain.Enums;
 
 namespace EducationPlatform.API.Services;
 
@@ -24,10 +23,8 @@ public class JwtService : IJwtService
 
     public string GenerateToken(User user)
     {
+        var (secretKey, issuer, audience) = GetJwtSettings();
         var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
-        var issuer = jwtSettings["Issuer"] ?? "EducationPlatform";
-        var audience = jwtSettings["Audience"] ?? "EducationPlatform";
         var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "1440");
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -56,10 +53,7 @@ public class JwtService : IJwtService
     {
         try
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
-            var issuer = jwtSettings["Issuer"] ?? "EducationPlatform";
-            var audience = jwtSettings["Audience"] ?? "EducationPlatform";
+            var (secretKey, issuer, audience) = GetJwtSettings();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -82,5 +76,25 @@ public class JwtService : IJwtService
         {
             return null;
         }
+    }
+
+    private (string SecretKey, string Issuer, string Audience) GetJwtSettings()
+    {
+        var secretKey = Environment.GetEnvironmentVariable("JwtSettings_SecretKey")
+                        ?? Environment.GetEnvironmentVariable("JwtSettings__SecretKey")
+                        ?? _configuration["JwtSettings:SecretKey"]
+                        ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+        var issuer = Environment.GetEnvironmentVariable("JwtSettings_Issuer")
+                     ?? Environment.GetEnvironmentVariable("JwtSettings__Issuer")
+                     ?? _configuration["JwtSettings:Issuer"]
+                     ?? "EducationPlatform";
+
+        var audience = Environment.GetEnvironmentVariable("JwtSettings_Audience")
+                       ?? Environment.GetEnvironmentVariable("JwtSettings__Audience")
+                       ?? _configuration["JwtSettings:Audience"]
+                       ?? "EducationPlatform";
+
+        return (secretKey, issuer, audience);
     }
 }

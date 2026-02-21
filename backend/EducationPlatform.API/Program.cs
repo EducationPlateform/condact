@@ -75,9 +75,15 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
             ValidateIssuer = true,
-            ValidIssuer = jwtSettings["Issuer"],
+            ValidIssuer = Environment.GetEnvironmentVariable("JwtSettings_Issuer")
+                          ?? Environment.GetEnvironmentVariable("JwtSettings__Issuer")
+                          ?? jwtSettings["Issuer"]
+                          ?? "EducationPlatform",
             ValidateAudience = true,
-            ValidAudience = jwtSettings["Audience"],
+            ValidAudience = Environment.GetEnvironmentVariable("JwtSettings_Audience")
+                            ?? Environment.GetEnvironmentVariable("JwtSettings__Audience")
+                            ?? jwtSettings["Audience"]
+                            ?? "EducationPlatform",
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1)
         };
