@@ -3,7 +3,7 @@ import { ApiResponse, Exam } from '../types/api';
 
 export const examService = {
   getAll: async (): Promise<Exam[]> => {
-    const response = await api.get<ApiResponse<Exam[]>>('/exams');
+    const response = await api.get<ApiResponse<Exam[]>>('/api/exams');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -11,7 +11,7 @@ export const examService = {
   },
 
   create: async (exam: Omit<Exam, 'id' | 'createdAt'>): Promise<Exam> => {
-    const response = await api.post<ApiResponse<Exam>>('/exams', exam);
+    const response = await api.post<ApiResponse<Exam>>('/api/exams', exam);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -19,7 +19,7 @@ export const examService = {
   },
 
   getById: async (id: string): Promise<Exam> => {
-    const response = await api.get<ApiResponse<Exam>>(`/exams/${id}`);
+    const response = await api.get<ApiResponse<Exam>>(`/api/exams/${id}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -27,7 +27,7 @@ export const examService = {
   },
 
   getByLecture: async (lectureId: string): Promise<Exam> => {
-    const response = await api.get<ApiResponse<Exam>>(`/exams/lecture/${lectureId}`);
+    const response = await api.get<ApiResponse<Exam>>(`/api/exams/lecture/${lectureId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -35,7 +35,7 @@ export const examService = {
   },
 
   update: async (id: string, data: Partial<Exam>): Promise<Exam> => {
-    const response = await api.put<ApiResponse<Exam>>(`/exams/${id}`, data);
+    const response = await api.put<ApiResponse<Exam>>(`/api/exams/${id}`, data);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -43,7 +43,7 @@ export const examService = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await api.delete<ApiResponse>(`/exams/${id}`);
+    const response = await api.delete<ApiResponse>(`/api/exams/${id}`);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete exam');
     }

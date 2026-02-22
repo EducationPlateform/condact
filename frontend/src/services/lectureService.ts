@@ -3,7 +3,7 @@ import { ApiResponse, Lecture } from '../types/api';
 
 export const lectureService = {
   getAll: async (): Promise<Lecture[]> => {
-    const response = await api.get<ApiResponse<Lecture[]>>('/lectures');
+    const response = await api.get<ApiResponse<Lecture[]>>('/api/lectures');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -59,7 +59,7 @@ export const lectureService = {
   },
 
   getByGroup: async (groupId: string): Promise<Lecture[]> => {
-    const response = await api.get<ApiResponse<Lecture[]>>(`/lectures/group/${groupId}`);
+    const response = await api.get<ApiResponse<Lecture[]>>(`/api/lectures/group/${groupId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -67,7 +67,7 @@ export const lectureService = {
   },
 
   getById: async (id: string): Promise<Lecture> => {
-    const response = await api.get<ApiResponse<Lecture>>(`/lectures/${id}`);
+    const response = await api.get<ApiResponse<Lecture>>(`/api/lectures/${id}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -75,7 +75,7 @@ export const lectureService = {
   },
 
   update: async (id: string, data: Partial<Lecture>): Promise<Lecture> => {
-    const response = await api.put<ApiResponse<Lecture>>(`/lectures/${id}`, data);
+    const response = await api.put<ApiResponse<Lecture>>(`/api/lectures/${id}`, data);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -83,7 +83,7 @@ export const lectureService = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await api.delete<ApiResponse>(`/lectures/${id}`);
+    const response = await api.delete<ApiResponse>(`/api/lectures/${id}`);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete lecture');
     }
@@ -96,7 +96,7 @@ export const lectureService = {
       formData.append('pdfs', file);
     });
     const response = await api.post<ApiResponse<{ pdfFiles: string[] }>>(
-      `/lectures/${lectureId}/pdfs`,
+      `/api/lectures/${lectureId}/pdfs`,
       formData
     );
     if (response.data.success && response.data.data) {

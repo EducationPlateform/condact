@@ -3,7 +3,7 @@ import { ApiResponse, Submission } from '../types/api';
 
 export const submissionService = {
   submitHomework: async (homeworkId: string, answers: Record<string, any>): Promise<Submission> => {
-    const response = await api.post<ApiResponse<Submission>>('/submissions/homework', {
+    const response = await api.post<ApiResponse<Submission>>('/api/submissions/homework', {
       homeworkId,
       answers,
     });
@@ -14,7 +14,7 @@ export const submissionService = {
   },
 
   submitExam: async (examId: string, answers: Record<string, any>): Promise<Submission> => {
-    const response = await api.post<ApiResponse<Submission>>('/submissions/exam', {
+    const response = await api.post<ApiResponse<Submission>>('/api/submissions/exam', {
       examId,
       answers,
     });
@@ -25,7 +25,7 @@ export const submissionService = {
   },
 
   getById: async (submissionId: string): Promise<Submission> => {
-    const response = await api.get<ApiResponse<Submission>>(`/submissions/${submissionId}`);
+    const response = await api.get<ApiResponse<Submission>>(`/api/submissions/${submissionId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -33,7 +33,7 @@ export const submissionService = {
   },
 
   getAll: async (params?: { studentId?: string; lectureId?: string }): Promise<Submission[]> => {
-    const response = await api.get<ApiResponse<Submission[]>>('/submissions', { params });
+    const response = await api.get<ApiResponse<Submission[]>>('/api/submissions', { params });
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -41,7 +41,7 @@ export const submissionService = {
   },
 
   updateScore: async (submissionId: string, score: number): Promise<Submission> => {
-    const response = await api.put<ApiResponse<Submission>>(`/submissions/${submissionId}/score`, {
+    const response = await api.put<ApiResponse<Submission>>(`/api/submissions/${submissionId}/score`, {
       score,
     });
     if (response.data.success && response.data.data) {

@@ -9,7 +9,7 @@ export interface DrmConfigResponse {
 
 export const drmService = {
   getDrmConfig: async (videoId: string): Promise<DrmConfigResponse> => {
-    const response = await api.get<ApiResponse<DrmConfigResponse>>(`/videos/${videoId}/drm-config`);
+    const response = await api.get<ApiResponse<DrmConfigResponse>>(`/api/videos/${videoId}/drm-config`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
