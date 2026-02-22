@@ -11,10 +11,10 @@ export const lectureService = {
   },
 
   create: async (data: any, video?: File): Promise<Lecture> => {
-    console.log("LectureService: ATOMIC_CREATE_V4_MATCHING_KEY");
+    console.log("LectureService: FORCING FORM DATA VIA FETCH");
     const formData = new FormData();
     
-    // Use lowercase keys to match the backend [FromForm] parameters exactly
+    // Explicitly append fields matching the backend parameters
     formData.append('groupId', data.groupId || '');
     formData.append('title', data.title || '');
     formData.append('description', data.description || '');
@@ -27,21 +27,33 @@ export const lectureService = {
       formData.append('video', video);
     }
 
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const baseURL = (import.meta as any).env?.VITE_API_URL || '/api';
+    const cleanBaseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
+    const url = `${cleanBaseURL}/api/lectures`;
+
     try {
-      // We pass an empty headers object to override the default application/json from api.ts
-      // Setting Content-Type to undefined lets the browser set it with the correct boundary
-      const response = await api.post<ApiResponse<Lecture>>('/lectures', formData, {
+      const response = await fetch(url, {
+        method: 'POST',
         headers: {
-          'Content-Type': undefined
-        }
-      } as any);
-      
-      if (response.data.success && response.data.data) {
-        return response.data.data;
+          'Authorization': `Bearer ${token}`,
+          // We DO NOT set Content-Type; the browser MUST set it to multipart/form-data with a boundary
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Server responded with ${response.status}`);
       }
-      throw new Error(response.data.message || 'Failed to create lecture');
+
+      const result = await response.json();
+      if (result.success && result.data) {
+        return result.data;
+      }
+      throw new Error(result.message || 'Failed to create lecture');
     } catch (err: any) {
-      console.error("LectureService Error:", err.response?.data || err.message);
+      console.error("LectureService Fetch Error:", err);
       throw err;
     }
   },
