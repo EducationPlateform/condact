@@ -11,28 +11,39 @@ export const lectureService = {
   },
 
   create: async (data: any, video?: File): Promise<Lecture> => {
-    // Force a new FormData to ensure it's fresh
+    console.log("LectureService: ATOMIC_CREATE_V4_MATCHING_KEY");
     const formData = new FormData();
     
-    // Explicitly append fields matching the backend CreateLectureRequest properties
-    formData.append('GroupId', data.groupId || '');
-    formData.append('Title', data.title || '');
-    formData.append('Description', data.description || '');
-    formData.append('ScheduledDate', data.scheduledDate || '');
-    formData.append('IsPublished', String(data.isPublished ?? false));
-    formData.append('Order', String(data.order ?? 0));
-    formData.append('Grade', data.grade || '');
+    // Use lowercase keys to match the backend [FromForm] parameters exactly
+    formData.append('groupId', data.groupId || '');
+    formData.append('title', data.title || '');
+    formData.append('description', data.description || '');
+    formData.append('scheduledDate', data.scheduledDate || '');
+    formData.append('isPublished', String(data.isPublished ?? false));
+    formData.append('order', String(data.order ?? 0));
+    formData.append('grade', data.grade || '');
 
     if (video) {
-      formData.append('Video', video);
+      formData.append('video', video);
     }
 
-    // Do NOT set Content-Type header manually; Axios will do it with the correct boundary
-    const response = await api.post<ApiResponse<Lecture>>('/lectures', formData);
-    if (response.data.success && response.data.data) {
-      return response.data.data;
+    try {
+      // We pass an empty headers object to override the default application/json from api.ts
+      // Setting Content-Type to undefined lets the browser set it with the correct boundary
+      const response = await api.post<ApiResponse<Lecture>>('/lectures', formData, {
+        headers: {
+          'Content-Type': undefined
+        }
+      } as any);
+      
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error(response.data.message || 'Failed to create lecture');
+    } catch (err: any) {
+      console.error("LectureService Error:", err.response?.data || err.message);
+      throw err;
     }
-    throw new Error(response.data.message || 'Failed to create lecture');
   },
 
   getByGroup: async (groupId: string): Promise<Lecture[]> => {

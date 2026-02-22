@@ -158,6 +158,24 @@ app.UseAuthorization();
 // Add error handling middleware
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
+// Debug logging middleware
+app.Use(async (context, next) =>
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Request: {Method} {Path}, Content-Type: {ContentType}, Content-Length: {ContentLength}",
+        context.Request.Method, context.Request.Path, context.Request.ContentType, context.Request.ContentLength);
+
+    if (context.Request.HasFormContentType)
+    {
+        foreach (var key in context.Request.Form.Keys)
+        {
+            logger.LogInformation("Form Item: {Key} = {Value}", key, context.Request.Form[key]);
+        }
+    }
+
+    await next();
+});
+
 app.MapControllers();
 app.MapGet("/", () => "Education Platform API is running!");
 
