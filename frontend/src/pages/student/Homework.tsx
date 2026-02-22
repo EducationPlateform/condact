@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
     FileText,
     Calendar,
@@ -39,11 +38,11 @@ const StudentHomework = () => {
                 const allHomeworks: { homework: Homework; lecture: Lecture }[] = [];
 
                 for (const group of groups) {
-                    const gid = (group as { _id?: string })._id ?? group.id;
+                    const gid = group.id || (group as any)._id;
                     try {
                         const lectures = await lectureService.getByGroup(gid);
                         for (const lecture of lectures) {
-                            const lid = (lecture as { _id?: string })._id ?? lecture.id;
+                            const lid = lecture.id || (lecture as any)._id;
                             try {
                                 const homework = await homeworkService.getByLecture(lid);
                                 allHomeworks.push({ homework, lecture });
@@ -117,7 +116,7 @@ const StudentHomework = () => {
                 {homeworks.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {homeworks.map((item) => {
-                            const homeworkId = (item.homework as { _id?: string })._id ?? item.homework.id;
+                            const homeworkId = item.homework.id || (item.homework as any)._id;
                             const lectureTitle = typeof item.lecture === "object"
                                 ? item.lecture.title
                                 : "—";

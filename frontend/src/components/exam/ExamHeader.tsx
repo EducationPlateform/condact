@@ -1,5 +1,4 @@
 import { Clock, User, GraduationCap } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 
 interface ExamHeaderProps {
     examTitle: string;
@@ -7,7 +6,6 @@ interface ExamHeaderProps {
 }
 
 const ExamHeader = ({ examTitle, timeLeft }: ExamHeaderProps) => {
-    const { user } = useAuth();
     const formatTime = (seconds: number): string => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;

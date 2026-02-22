@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Eye,
   EyeOff,
@@ -13,17 +12,11 @@ import {
   Lock,
   GraduationCap,
   Users,
-  ArrowLeft,
-  ArrowRight,
-  LogOut,
-  ChevronLeft,
   LogIn,
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
-import Logo from "@/components/Logo";
-import { cn } from "@/lib/utils";
 
 const Login = () => {
   const [userType, setUserType] = useState<"teacher" | "student">("teacher");
@@ -269,8 +262,5 @@ const Login = () => {
     </div>
   );
 };
-
-// Add Calculator to the lucide-react list above
-import { Calculator } from "lucide-react";
 
 export default Login;

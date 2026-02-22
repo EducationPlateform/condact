@@ -30,7 +30,7 @@ const VideoViewer: React.FC = () => {
           const videoData = await videoService.getById(
             typeof lectureData.videoId === "string"
               ? lectureData.videoId
-              : lectureData.videoId._id,
+              : (lectureData.videoId as any).id || (lectureData.videoId as any)._id,
           );
           setVideo(videoData);
         }
@@ -94,8 +94,8 @@ const VideoViewer: React.FC = () => {
 
         {access && (
           <SecureVideoPlayer
-            videoId={video._id}
-            lectureId={lecture._id}
+            videoId={video.id || (video as any)._id}
+            lectureId={lecture.id || (lecture as any)._id}
             maxViews={access.maxViews}
             currentViews={access.currentViews}
             onViewRecorded={handleViewRecorded}

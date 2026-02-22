@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Award, TrendingUp } from "lucide-react";
+import { Loader2, Award } from "lucide-react";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import { LoadingScreen } from "@/components/common/Loading";
 import { studentStrings } from "@/studentStrings";
@@ -78,7 +78,7 @@ const Scores = () => {
                                 <tbody className="divide-y divide-gray-200">
                                     {scores.length > 0 ? (
                                         scores.map((score) => {
-                                            const scoreId = (score as { _id?: string })._id ?? score.id;
+                                            const scoreId = score.id || (score as any)._id;
                                             const lectureTitle = typeof score.lectureId === "object"
                                                 ? score.lectureId.title
                                                 : "—";

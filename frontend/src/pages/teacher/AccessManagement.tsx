@@ -135,7 +135,7 @@ const AccessManagement: React.FC = () => {
                   }}
                 >
                   {groups.map((group) => (
-                    <MenuItem key={group._id} value={group._id}>
+                    <MenuItem key={group.id} value={group.id}>
                       {group.name}
                     </MenuItem>
                   ))}
@@ -151,7 +151,7 @@ const AccessManagement: React.FC = () => {
                   disabled={!selectedGroup}
                 >
                   {lectures.map((lecture) => (
-                    <MenuItem key={lecture._id} value={lecture._id}>
+                    <MenuItem key={lecture.id} value={lecture.id}>
                       {lecture.title}
                     </MenuItem>
                   ))}
@@ -166,7 +166,7 @@ const AccessManagement: React.FC = () => {
                   onChange={(e) => setSelectedStudent(e.target.value)}
                 >
                   {students.map((student) => (
-                    <MenuItem key={student._id} value={student._id}>
+                    <MenuItem key={student.id} value={student.id}>
                       {student.name} ({student.email})
                     </MenuItem>
                   ))}
@@ -210,7 +210,7 @@ const AccessManagement: React.FC = () => {
                   }}
                 >
                   {groups.map((group) => (
-                    <MenuItem key={group._id} value={group._id}>
+                    <MenuItem key={group.id} value={group.id}>
                       {group.name}
                     </MenuItem>
                   ))}
@@ -226,7 +226,7 @@ const AccessManagement: React.FC = () => {
                   disabled={!selectedGroup}
                 >
                   {lectures.map((lecture) => (
-                    <MenuItem key={lecture._id} value={lecture._id}>
+                    <MenuItem key={lecture.id} value={lecture.id}>
                       {lecture.title}
                     </MenuItem>
                   ))}

@@ -227,7 +227,7 @@ const SecureVideoPlayer: React.FC<SecureVideoPlayerProps> = ({
           playsInline
         />
         <WatermarkOverlay
-          studentId={user?._id || ""}
+          studentId={user?.id || ""}
           studentEmail={user?.email || ""}
           enabled={hasAccess && viewRecorded}
           opacity={0.3}

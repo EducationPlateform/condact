@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -8,7 +8,6 @@ import {
     Lock,
     Plus,
     ArrowLeft,
-    Award,
     Loader2,
     BookOpen,
 } from "lucide-react";
@@ -63,10 +62,10 @@ const Lectures = () => {
                 let remainingLessonsCount = 0;
 
                 for (const group of groups) {
-                    const gid = (group as { _id?: string })._id ?? group.id;
+                    const gid = group.id || (group as any)._id;
                     try {
                         const groupLectures = await lectureService.getByGroup(gid);
-                        
+
                         if (groupLectures.length === 0) continue;
 
                         // Check access for each lecture
@@ -76,16 +75,16 @@ const Lectures = () => {
                         let lastAccessed: { lecture: Lecture; date: Date } | null = null;
 
                         for (const lecture of groupLectures) {
-                            const lid = (lecture as { _id?: string })._id ?? lecture.id;
+                            const lid = lecture.id || (lecture as any)._id;
                             try {
                                 const access = await accessService.checkAccess(lid);
                                 lectureAccessMap.set(lid, access);
                                 hasAnyAccess = true;
-                                
+
                                 if (access.currentViews > 0) {
                                     completedCount++;
                                 }
-                                
+
                                 if (access.lastViewedAt) {
                                     const viewedDate = new Date(access.lastViewedAt);
                                     if (!lastAccessed || viewedDate > lastAccessed.date) {
@@ -110,7 +109,7 @@ const Lectures = () => {
 
                         // Count remaining lessons (unpublished or not accessed)
                         const remaining = groupLectures.filter(l => {
-                            const lid = (l as { _id?: string })._id ?? l.id;
+                            const lid = l.id || (l as any)._id;
                             const access = lectureAccessMap.get(lid);
                             return !l.isPublished || (access && access.currentViews === 0);
                         }).length;
@@ -162,7 +161,6 @@ const Lectures = () => {
     const getNextLecture = (course: CourseData): Lecture | null => {
         // Find first lecture that hasn't been completed
         for (const lecture of course.lectures) {
-            const lid = (lecture as { _id?: string })._id ?? lecture.id;
             // For now, return first published lecture
             if (lecture.isPublished) {
                 return lecture;
@@ -178,7 +176,7 @@ const Lectures = () => {
         }
         const nextLecture = getNextLecture(course);
         if (nextLecture) {
-            const lid = (nextLecture as { _id?: string })._id ?? nextLecture.id;
+            const lid = nextLecture.id || (nextLecture as any)._id;
             navigate(`/student/lectures/${lid}`);
         }
     };
@@ -261,15 +259,13 @@ const Lectures = () => {
 
                             {/* Course Cards */}
                             {courses.map((course) => {
-                                const groupId = (course.group as { _id?: string })._id ?? course.group.id;
-                                const nextLecture = getNextLecture(course);
-                                
+                                const groupId = course.group.id || (course.group as any)._id;
+
                                 return (
                                     <Card
                                         key={groupId}
-                                        className={`rounded-2xl shadow-sm transition-shadow hover:shadow-md overflow-hidden ${
-                                            course.isLocked ? "opacity-75" : "cursor-pointer"
-                                        }`}
+                                        className={`rounded-2xl shadow-sm transition-shadow hover:shadow-md overflow-hidden ${course.isLocked ? "opacity-75" : "cursor-pointer"
+                                            }`}
                                         onClick={() => !course.isLocked && handleCourseClick(course)}
                                     >
                                         {/* Course Thumbnail */}
@@ -289,8 +285,8 @@ const Lectures = () => {
 
                                             {/* Course Description */}
                                             <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                                                {course.group.description || 
-                                                 (course.lectures[0]?.title || "لا يوجد وصف")}
+                                                {course.group.description ||
+                                                    (course.lectures[0]?.title || "لا يوجد وصف")}
                                             </p>
 
                                             {/* Progress Section */}

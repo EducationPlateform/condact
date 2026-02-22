@@ -3,13 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
     DialogFooter,
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertTriangle, ArrowRight, ArrowLeft, Check, ClipboardCheck } from "lucide-react";
+import { Loader2, AlertTriangle, AlertCircle, ArrowRight, ArrowLeft, Check, ClipboardCheck } from "lucide-react";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import ExamHeader from "./ExamHeader";
 import QuestionMap from "./QuestionMap";
@@ -39,7 +38,7 @@ const ExamForm: React.FC<ExamFormProps> = ({ exam, onSubmit }) => {
     const [autoSaved, setAutoSaved] = useState(false);
     const [showEndExamDialog, setShowEndExamDialog] = useState(false);
 
-    const examId = (exam as { _id?: string })._id ?? exam.id ?? "unknown";
+    const examId = exam.id || (exam as any)._id || "unknown";
     const storageKey = `exam_${examId}_answers`;
 
     // Load saved answers from localStorage
@@ -327,7 +326,7 @@ const ExamForm: React.FC<ExamFormProps> = ({ exam, onSubmit }) => {
                                 const text = studentStrings.answeredCount(answeredCount, exam.questions.length);
                                 // Extract numbers and make them bold and blue
                                 const parts = text.split(/(\d+)/);
-                                return parts.map((part, idx) => 
+                                return parts.map((part, idx) =>
                                     /^\d+$/.test(part) ? (
                                         <span key={idx} className="font-bold text-blue-600">{part}</span>
                                     ) : (

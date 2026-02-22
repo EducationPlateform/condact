@@ -122,7 +122,7 @@ const ExamEditor: React.FC = () => {
               }}
             >
               {groups.map((group) => (
-                <MenuItem key={group._id} value={group._id}>
+                <MenuItem key={group.id} value={group.id}>
                   {group.name}
                 </MenuItem>
               ))}
@@ -138,7 +138,7 @@ const ExamEditor: React.FC = () => {
               disabled={!selectedGroup}
             >
               {lectures.map((lecture) => (
-                <MenuItem key={lecture._id} value={lecture._id}>
+                <MenuItem key={lecture.id} value={lecture.id}>
                   {lecture.title}
                 </MenuItem>
               ))}

@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { WhatsApp } from "@mui/icons-material";
 import {
-  MessageCircle,
   Youtube,
   GraduationCap,
   Monitor,
   Lightbulb,
-  Hexagon,
 } from "lucide-react";
 
 const ExpertSection = () => {

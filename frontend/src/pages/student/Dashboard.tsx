@@ -27,18 +27,6 @@ import { announcementService } from "@/services/announcementService";
 import { studentStrings } from "@/studentStrings";
 import { Announcement, Lecture } from "@/types/api";
 
-function formatTimeAgo(createdAt: string): string {
-    const date = new Date(createdAt);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays >= 2) return studentStrings.timeAgoDays(diffDays);
-    if (diffDays === 1) return studentStrings.timeAgoYesterday;
-    if (diffHours >= 2) return studentStrings.timeAgoHours(2);
-    if (diffHours >= 1) return studentStrings.timeAgoHours(1);
-    return studentStrings.timeAgoHours(0);
-}
 
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -69,13 +57,13 @@ const Dashboard = () => {
                 const allLectures: Lecture[] = [];
 
                 for (const group of groups) {
-                    const gid = (group as { _id?: string })._id ?? group.id;
+                    const gid = group.id || (group as any)._id;
                     try {
                         const lectures = await lectureService.getByGroup(gid);
                         totalLectures += lectures.length;
                         allLectures.push(...lectures);
                         for (const lec of lectures) {
-                            const lid = (lec as { _id?: string })._id ?? lec.id;
+                            const lid = lec.id || (lec as any)._id;
                             try {
                                 await homeworkService.getByLecture(lid);
                                 hwCount += 1;

@@ -23,7 +23,6 @@ import { accessService } from "@/services/accessService";
 import { groupService } from "@/services/groupService";
 import { homeworkService } from "@/services/homeworkService";
 import { studentStrings } from "@/studentStrings";
-import { useAuth } from "@/context/AuthContext";
 import { Lecture, StudentAccess, Video, Group, Homework } from "@/types/api";
 
 interface ProcessedLecture {
@@ -36,7 +35,6 @@ interface ProcessedLecture {
 
 const LectureDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const { user } = useAuth();
     const navigate = useNavigate();
     const [lecture, setLecture] = useState<Lecture | null>(null);
     const [video, setVideo] = useState<Video | null>(null);
@@ -49,8 +47,6 @@ const LectureDetail = () => {
     const [activeTab, setActiveTab] = useState("description");
 
     useEffect(() => {
-        const abortController = new AbortController();
-        const { signal } = abortController;
 
         const fetchData = async () => {
             if (!id) {
@@ -65,14 +61,14 @@ const LectureDetail = () => {
                 const lectureData = await lectureService.getById(id);
                 setLecture(lectureData);
 
-                const lectureId = (lectureData as { _id?: string })._id ?? lectureData.id;
+                const lectureId = lectureData.id || (lectureData as any)._id;
 
                 // Fetch video if exists
                 if (lectureData.videoId) {
                     try {
                         const videoId = typeof lectureData.videoId === "string"
                             ? lectureData.videoId
-                            : lectureData.videoId._id || lectureData.videoId.id;
+                            : (lectureData.videoId as any).id || (lectureData.videoId as any)._id;
                         const videoData = await videoService.getById(videoId);
                         setVideo(videoData);
                     } catch (err) {
@@ -91,8 +87,8 @@ const LectureDetail = () => {
                 // Fetch group
                 const groupId = typeof lectureData.groupId === "string"
                     ? lectureData.groupId
-                    : lectureData.groupId.id || (lectureData.groupId as { _id?: string })._id;
-                
+                    : lectureData.groupId.id || (lectureData.groupId as any).id || (lectureData.groupId as any)._id;
+
                 if (groupId) {
                     try {
                         const groupData = await groupService.getById(groupId);
@@ -104,7 +100,7 @@ const LectureDetail = () => {
                         // Process each lecture
                         const processed: ProcessedLecture[] = await Promise.all(
                             allLectures.map(async (lec) => {
-                                const lid = (lec as { _id?: string })._id ?? lec.id;
+                                const lid = lec.id || (lec as any)._id;
                                 let access = null;
                                 let isCompleted = false;
                                 let isLocked = false;
@@ -122,7 +118,7 @@ const LectureDetail = () => {
                                     try {
                                         const vid = typeof lec.videoId === "string"
                                             ? lec.videoId
-                                            : lec.videoId._id || lec.videoId.id;
+                                            : (lec.videoId as any).id || (lec.videoId as any)._id;
                                         videoData = await videoService.getById(vid);
                                     } catch {
                                         // Video not available
@@ -157,12 +153,12 @@ const LectureDetail = () => {
             } catch (error) {
                 console.error("Failed to fetch lecture:", error);
             } finally {
-                if (!abortController.signal.aborted) setLoading(false);
+                setLoading(false);
             }
         };
 
         fetchData();
-        return () => abortController.abort();
+        return () => { };
     }, [id]);
 
     const handleViewRecorded = async () => {
@@ -219,7 +215,7 @@ const LectureDetail = () => {
         );
     }
 
-    const lectureId = (lecture as { _id?: string })._id ?? lecture.id;
+    const lectureId = lecture.id || (lecture as any)._id;
 
     return (
         <StudentLayout>
@@ -415,8 +411,8 @@ const LectureDetail = () => {
                                 </div>
 
                                 <div className="space-y-2 mb-6">
-                                    {groupLectures.map((item, index) => {
-                                        const lid = (item.lecture as { _id?: string })._id ?? item.lecture.id;
+                                    {groupLectures.map((item) => {
+                                        const lid = item.lecture.id || (item.lecture as any).id || (item.lecture as any)._id;
                                         const isActive = lid === lectureId;
                                         const duration = item.video?.duration || 0;
 
@@ -433,8 +429,8 @@ const LectureDetail = () => {
                                                     ${isActive
                                                         ? "bg-blue-50 border-2 border-primary"
                                                         : item.isLocked
-                                                        ? "bg-gray-50 opacity-60 cursor-not-allowed"
-                                                        : "bg-white hover:bg-gray-50 border border-gray-200"
+                                                            ? "bg-gray-50 opacity-60 cursor-not-allowed"
+                                                            : "bg-white hover:bg-gray-50 border border-gray-200"
                                                     }
                                                 `}
                                             >

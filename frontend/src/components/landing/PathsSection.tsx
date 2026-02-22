@@ -72,7 +72,7 @@ const PathsSection = () => {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
+      const { clientWidth } = scrollRef.current;
       // In RTL, positive scrollLeft is to the left, but behavior can vary by browser.
       // Usually, scrolling "right" means scrollLeft increases (towards 0 if it was negative)
       // or decreases if it was positive. Let's use a simpler approach.
@@ -263,9 +263,8 @@ const PathsSection = () => {
         <div className="mt-20 flex justify-center">
           <div className="relative w-full max-w-4xl h-24 bg-white rounded-[3rem] shadow-inner border border-gray-100 overflow-hidden flex cursor-pointer p-2">
             <div
-              className={`absolute top-2 bottom-2 w-[48%] bg-[#3b82f6] rounded-[2.5rem] transition-all duration-500 ease-in-out shadow-lg shadow-blue-300 ${
-                activeTab === "academic" ? "right-2" : "right-[50%]"
-              }`}
+              className={`absolute top-2 bottom-2 w-[48%] bg-[#3b82f6] rounded-[2.5rem] transition-all duration-500 ease-in-out shadow-lg shadow-blue-300 ${activeTab === "academic" ? "right-2" : "right-[50%]"
+                }`}
             />
             <div
               className="relative z-10 flex-1 flex items-center justify-center text-2xl font-bold font-amin"

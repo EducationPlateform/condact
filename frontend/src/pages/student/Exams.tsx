@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
     FileQuestion,
-    Calendar,
     Clock,
     Loader2,
     ClipboardCheck,
@@ -40,11 +39,11 @@ const Exams = () => {
                 const allExams: { exam: Exam; lecture: Lecture }[] = [];
 
                 for (const group of groups) {
-                    const gid = (group as { _id?: string })._id ?? group.id;
+                    const gid = group.id || (group as any)._id;
                     try {
                         const lectures = await lectureService.getByGroup(gid);
                         for (const lecture of lectures) {
-                            const lid = (lecture as { _id?: string })._id ?? lecture.id;
+                            const lid = lecture.id || (lecture as any)._id;
                             try {
                                 const exam = await examService.getByLecture(lid);
                                 allExams.push({ exam, lecture });
@@ -76,7 +75,7 @@ const Exams = () => {
         return submissions.some(
             (s) =>
                 s.examId === examId ||
-                (typeof s.examId === "object" && (s.examId as { _id?: string })._id === examId),
+                (typeof s.examId === "object" && ((s.examId as any).id || (s.examId as any)._id) === examId),
         );
     };
 
@@ -140,7 +139,7 @@ const Exams = () => {
                 {exams.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {exams.map((item) => {
-                            const examId = (item.exam as { _id?: string })._id ?? item.exam.id;
+                            const examId = item.exam.id || (item.exam as any)._id;
                             const submitted = hasSubmitted(examId);
                             const lectureTitle = typeof item.lecture === "object"
                                 ? item.lecture.title

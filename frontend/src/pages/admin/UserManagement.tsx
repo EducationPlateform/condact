@@ -41,7 +41,7 @@ const UserManagement: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await api.delete(`/users/${id}`);
-        setUsers(users.filter((u) => u._id !== id));
+        setUsers(users.filter((u) => u.id !== id));
       } catch (error) {
         console.error("Failed to delete user:", error);
         alert("Failed to delete user");
@@ -87,7 +87,7 @@ const UserManagement: React.FC = () => {
           </TableHead>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user._id}>
+              <TableRow key={user.id}>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
@@ -100,7 +100,7 @@ const UserManagement: React.FC = () => {
                 <TableCell align="right">
                   <IconButton
                     color="error"
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => handleDelete(user.id)}
                     disabled={user.role === "admin"}
                   >
                     <Delete />
