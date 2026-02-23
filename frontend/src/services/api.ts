@@ -1,9 +1,21 @@
 import axios, { AxiosInstance } from 'axios';
 
+const getBaseURL = () => {
+  const apiURL = (import.meta as any).env?.VITE_API_URL || '';
+  if (!apiURL) return '/api/';
+  
+  // Ensure the URL ends with a slash for consistent joining
+  let base = apiURL.endsWith('/') ? apiURL : `${apiURL}/`;
+  
+  // If it doesn't already end with /api/, append it
+  if (!base.toLowerCase().endsWith('/api/')) {
+    base = `${base}api/`;
+  }
+  return base;
+};
+
 const api: AxiosInstance = axios.create({
-  baseURL: (import.meta as any).env?.VITE_API_URL ? 
-    ((import.meta as any).env.VITE_API_URL.endsWith('/') ? (import.meta as any).env.VITE_API_URL : `${(import.meta as any).env.VITE_API_URL}/`) : 
-    '/api/',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
