@@ -23,7 +23,7 @@ const tokenStorage = (persistent: boolean) => (persistent ? localStorage : sessi
 
 export const authService = {
   login: async (data: LoginData): Promise<AuthResponse> => {
-    const response = await api.post<ApiResponse<AuthResponse>>('/api/auth/login', { email: data.email, password: data.password });
+    const response = await api.post<ApiResponse<AuthResponse>>('auth/login', { email: data.email, password: data.password });
     if (response.data.success && response.data.data) {
       const authData = response.data.data;
       const token = (authData.token ?? '').trim();
@@ -40,7 +40,7 @@ export const authService = {
   },
 
   register: async (data: RegisterData): Promise<AuthResponse> => {
-    const response = await api.post<ApiResponse<AuthResponse>>('/api/auth/register', data);
+    const response = await api.post<ApiResponse<AuthResponse>>('auth/register', data);
     if (response.data.success && response.data.data) {
       const persistent = (data as RegisterData & { rememberMe?: boolean }).rememberMe !== false;
       const token = (response.data.data.token || '').trim();
@@ -51,7 +51,7 @@ export const authService = {
   },
 
   getMe: async (): Promise<User> => {
-    const response = await api.get<ApiResponse<User>>('/api/auth/me');
+    const response = await api.get<ApiResponse<User>>('auth/me');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }

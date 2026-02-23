@@ -6,7 +6,7 @@ export const videoService = {
     const formData = new FormData();
     formData.append('video', file);
     formData.append('lectureId', lectureId);
-    const response = await api.post<ApiResponse<Video>>('/api/videos/upload', formData);
+    const response = await api.post<ApiResponse<Video>>('videos/upload', formData);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -14,7 +14,7 @@ export const videoService = {
   },
 
   getById: async (videoId: string): Promise<Video> => {
-    const response = await api.get<ApiResponse<Video>>(`/api/videos/${videoId}`);
+    const response = await api.get<ApiResponse<Video>>(`videos/${videoId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -26,7 +26,7 @@ export const videoService = {
   },
 
   delete: async (videoId: string): Promise<void> => {
-    const response = await api.delete<ApiResponse>(`/api/videos/${videoId}`);
+    const response = await api.delete<ApiResponse>(`videos/${videoId}`);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete video');
     }

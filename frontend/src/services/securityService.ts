@@ -24,7 +24,7 @@ export const securityService = {
     violationType: string,
     details?: any
   ): Promise<void> => {
-    const response = await api.post<ApiResponse<void>>('/api/security/violation', {
+    const response = await api.post<ApiResponse<void>>('security/violation', {
       lectureId,
       videoId,
       violationType,
@@ -36,7 +36,7 @@ export const securityService = {
   },
 
   getWatermarkData: async (lectureId: string): Promise<WatermarkData> => {
-    const response = await api.get<ApiResponse<WatermarkData>>(`/api/security/watermark/${lectureId}`);
+    const response = await api.get<ApiResponse<WatermarkData>>(`security/watermark/${lectureId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -48,7 +48,7 @@ export const securityService = {
     lectureId?: string;
     videoId?: string;
   }): Promise<SecurityViolation[]> => {
-    const response = await api.get<ApiResponse<SecurityViolation[]>>('/api/security/violations', { params });
+    const response = await api.get<ApiResponse<SecurityViolation[]>>('security/violations', { params });
     if (response.data.success && response.data.data) {
       return response.data.data;
     }

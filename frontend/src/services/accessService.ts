@@ -3,7 +3,7 @@ import { ApiResponse, StudentAccess } from '../types/api';
 
 export const accessService = {
   grantAccess: async (studentId: string, lectureId: string, maxViews?: number): Promise<StudentAccess> => {
-    const response = await api.post<ApiResponse<StudentAccess>>('/api/access/grant', {
+    const response = await api.post<ApiResponse<StudentAccess>>('access/grant', {
       studentId,
       lectureId,
       maxViews,
@@ -15,7 +15,7 @@ export const accessService = {
   },
 
   extendAccess: async (studentId: string, lectureId: string, additionalViews: number): Promise<StudentAccess> => {
-    const response = await api.post<ApiResponse<StudentAccess>>('/api/access/extend', {
+    const response = await api.post<ApiResponse<StudentAccess>>('access/extend', {
       studentId,
       lectureId,
       additionalViews,
@@ -27,7 +27,7 @@ export const accessService = {
   },
 
   checkAccess: async (lectureId: string): Promise<StudentAccess> => {
-    const response = await api.get<ApiResponse<StudentAccess>>(`/api/access/check/${lectureId}`);
+    const response = await api.get<ApiResponse<StudentAccess>>(`access/check/${lectureId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -36,7 +36,7 @@ export const accessService = {
 
   recordView: async (lectureId: string): Promise<{ maxViews: number; currentViews: number; remainingViews: number }> => {
     const response = await api.post<ApiResponse<{ maxViews: number; currentViews: number; remainingViews: number }>>(
-      '/api/access/record-view',
+      'access/record-view',
       { lectureId }
     );
     if (response.data.success && response.data.data) {
@@ -46,7 +46,7 @@ export const accessService = {
   },
 
   redeemCode: async (lectureId: string, code: string): Promise<StudentAccess> => {
-    const response = await api.post<ApiResponse<{ studentAccess: StudentAccess }>>('/api/access/redeem', {
+    const response = await api.post<ApiResponse<{ studentAccess: StudentAccess }>>('access/redeem', {
       lectureId,
       code,
     });
@@ -57,7 +57,7 @@ export const accessService = {
   },
 
   generateCode: async (lectureId: string, maxViews?: number, expiresAt?: string): Promise<{ code: string }> => {
-    const response = await api.post<ApiResponse<{ code: string }>>('/api/access/generate', {
+    const response = await api.post<ApiResponse<{ code: string }>>('access/generate', {
       lectureId,
       maxViews,
       expiresAt,

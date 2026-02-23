@@ -3,7 +3,7 @@ import { ApiResponse, Homework } from '../types/api';
 
 export const homeworkService = {
   getAll: async (): Promise<Homework[]> => {
-    const response = await api.get<ApiResponse<Homework[]>>('/api/homework');
+    const response = await api.get<ApiResponse<Homework[]>>('homework');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -11,7 +11,7 @@ export const homeworkService = {
   },
 
   create: async (homework: Omit<Homework, 'id' | 'createdAt'>): Promise<Homework> => {
-    const response = await api.post<ApiResponse<Homework>>('/api/homework', homework);
+    const response = await api.post<ApiResponse<Homework>>('homework', homework);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -19,7 +19,7 @@ export const homeworkService = {
   },
 
   getById: async (id: string): Promise<Homework> => {
-    const response = await api.get<ApiResponse<Homework>>(`/api/homework/${id}`);
+    const response = await api.get<ApiResponse<Homework>>(`homework/${id}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -27,7 +27,7 @@ export const homeworkService = {
   },
 
   getByLecture: async (lectureId: string): Promise<Homework> => {
-    const response = await api.get<ApiResponse<Homework>>(`/api/homework/lecture/${lectureId}`);
+    const response = await api.get<ApiResponse<Homework>>(`homework/lecture/${lectureId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -35,7 +35,7 @@ export const homeworkService = {
   },
 
   update: async (id: string, data: Partial<Homework>): Promise<Homework> => {
-    const response = await api.put<ApiResponse<Homework>>(`/api/homework/${id}`, data);
+    const response = await api.put<ApiResponse<Homework>>(`homework/${id}`, data);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -43,7 +43,7 @@ export const homeworkService = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await api.delete<ApiResponse>(`/api/homework/${id}`);
+    const response = await api.delete<ApiResponse>(`homework/${id}`);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete homework');
     }

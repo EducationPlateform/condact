@@ -305,6 +305,9 @@ const AppRoutes: React.FC = () => {
 
       {/* Root - Landing Page */}
       <Route path="/" element={<Home />} />
+
+      {/* Catch-all - Redirect to Home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

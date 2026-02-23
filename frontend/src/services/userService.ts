@@ -3,7 +3,7 @@ import { ApiResponse, User } from '../types/api';
 
 export const userService = {
   getAll: async (): Promise<User[]> => {
-    const response = await api.get<ApiResponse<User[]>>('/api/users');
+    const response = await api.get<ApiResponse<User[]>>('users');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -11,7 +11,7 @@ export const userService = {
   },
 
   getById: async (id: string): Promise<User> => {
-    const response = await api.get<ApiResponse<User>>(`/api/users/${id}`);
+    const response = await api.get<ApiResponse<User>>(`users/${id}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -19,7 +19,7 @@ export const userService = {
   },
 
   update: async (id: string, data: Partial<User>): Promise<User> => {
-    const response = await api.put<ApiResponse<User>>(`/api/users/${id}`, data);
+    const response = await api.put<ApiResponse<User>>(`users/${id}`, data);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -27,7 +27,7 @@ export const userService = {
   },
 
   getStudents: async (): Promise<User[]> => {
-    const response = await api.get<ApiResponse<User[]>>('/api/users');
+    const response = await api.get<ApiResponse<User[]>>('users');
     if (response.data.success && response.data.data) {
       // The backend already filters by students if the user is a teacher,
       // but we can add an extra layer of safety here just in case.

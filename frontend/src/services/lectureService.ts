@@ -3,7 +3,7 @@ import { ApiResponse, Lecture } from '../types/api';
 
 export const lectureService = {
   getAll: async (): Promise<Lecture[]> => {
-    const response = await api.get<ApiResponse<Lecture[]>>('/api/lectures');
+    const response = await api.get<ApiResponse<Lecture[]>>('lectures');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -28,9 +28,9 @@ export const lectureService = {
     }
 
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const baseURL = (import.meta as any).env?.VITE_API_URL || '/api';
+    const baseURL = (import.meta as any).env?.VITE_API_URL || '';
     const cleanBaseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-    const url = `${cleanBaseURL}/api/lectures`;
+    const url = `${cleanBaseURL}/lectures`;
 
     try {
       const response = await fetch(url, {
@@ -59,7 +59,7 @@ export const lectureService = {
   },
 
   getByGroup: async (groupId: string): Promise<Lecture[]> => {
-    const response = await api.get<ApiResponse<Lecture[]>>(`/api/lectures/group/${groupId}`);
+    const response = await api.get<ApiResponse<Lecture[]>>(`lectures/group/${groupId}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -67,7 +67,7 @@ export const lectureService = {
   },
 
   getById: async (id: string): Promise<Lecture> => {
-    const response = await api.get<ApiResponse<Lecture>>(`/api/lectures/${id}`);
+    const response = await api.get<ApiResponse<Lecture>>(`lectures/${id}`);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -75,7 +75,7 @@ export const lectureService = {
   },
 
   update: async (id: string, data: Partial<Lecture>): Promise<Lecture> => {
-    const response = await api.put<ApiResponse<Lecture>>(`/api/lectures/${id}`, data);
+    const response = await api.put<ApiResponse<Lecture>>(`lectures/${id}`, data);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -83,7 +83,7 @@ export const lectureService = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await api.delete<ApiResponse>(`/api/lectures/${id}`);
+    const response = await api.delete<ApiResponse>(`lectures/${id}`);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete lecture');
     }
@@ -96,7 +96,7 @@ export const lectureService = {
       formData.append('pdfs', file);
     });
     const response = await api.post<ApiResponse<{ pdfFiles: string[] }>>(
-      `/api/lectures/${lectureId}/pdfs`,
+      `lectures/${lectureId}/pdfs`,
       formData
     );
     if (response.data.success && response.data.data) {

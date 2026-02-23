@@ -3,7 +3,7 @@ import { ApiResponse, Announcement } from '../types/api';
 
 export const announcementService = {
   getActive: async (): Promise<Announcement[]> => {
-    const response = await api.get<ApiResponse<Announcement[]>>('/api/announcements/active');
+    const response = await api.get<ApiResponse<Announcement[]>>('announcements/active');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -11,7 +11,7 @@ export const announcementService = {
   },
 
   getAll: async (): Promise<Announcement[]> => {
-    const response = await api.get<ApiResponse<Announcement[]>>('/api/announcements');
+    const response = await api.get<ApiResponse<Announcement[]>>('announcements');
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -25,7 +25,7 @@ export const announcementService = {
     isActive?: boolean;
     expiresAt?: string;
   }): Promise<Announcement> => {
-    const response = await api.post<ApiResponse<Announcement>>('/api/announcements', announcement);
+    const response = await api.post<ApiResponse<Announcement>>('announcements', announcement);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -39,7 +39,7 @@ export const announcementService = {
     isActive?: boolean;
     expiresAt?: string;
   }): Promise<Announcement> => {
-    const response = await api.put<ApiResponse<Announcement>>(`/api/announcements/${id}`, announcement);
+    const response = await api.put<ApiResponse<Announcement>>(`announcements/${id}`, announcement);
     if (response.data.success && response.data.data) {
       return response.data.data;
     }
@@ -47,7 +47,7 @@ export const announcementService = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await api.delete<ApiResponse<void>>(`/api/announcements/${id}`);
+    const response = await api.delete<ApiResponse<void>>(`announcements/${id}`);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete announcement');
     }
