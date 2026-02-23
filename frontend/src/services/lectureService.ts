@@ -29,8 +29,8 @@ export const lectureService = {
 
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const baseURL = (import.meta as any).env?.VITE_API_URL || '';
-    const cleanBaseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-    const url = `${cleanBaseURL}/lectures`;
+    const cleanBaseURL = baseURL ? (baseURL.endsWith('/') ? baseURL : `${baseURL}/`) : '/api/';
+    const url = `${cleanBaseURL}lectures`;
 
     try {
       const response = await fetch(url, {
