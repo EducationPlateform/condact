@@ -33,4 +33,8 @@ obj/
 
 .cursor/
 
+# .NET sensitive files
+appsettings.Development.json
+appsettings.Local.json
+
 resources/

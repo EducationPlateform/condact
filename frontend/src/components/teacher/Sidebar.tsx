@@ -8,6 +8,7 @@ import {
     LayoutDashboard,
     FileText,
     Video,
+    ClipboardCheck,
     Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }: SidebarProps) => {
         { icon: Users, label: "المجموعات", href: "/teacher/groups" },
         { icon: Video, label: "المحاضرات", href: "/teacher/lectures" },
         { icon: FileText, label: "الواجبات", href: "/teacher/homework" },
+        { icon: ClipboardCheck, label: "الامتحانات", href: "/teacher/exams" },
         { icon: Settings, label: "الإعدادات", href: "/teacher/profile" },
     ];
 

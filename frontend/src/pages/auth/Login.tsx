@@ -200,10 +200,10 @@ const Login = () => {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-16 rounded-2xl border-slate-100 bg-slate-50 pr-12 text-lg focus:bg-white transition-all shadow-sm"
+                  className="h-16 rounded-2xl border-slate-100 bg-slate-50 pl-12 text-lg focus:bg-white transition-all shadow-sm"
                   dir="ltr"
                 />
-                <Mail className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
 
@@ -224,11 +224,11 @@ const Login = () => {
                   className="h-16 rounded-2xl border-slate-100 bg-slate-50 px-12 text-lg focus:bg-white transition-all shadow-sm"
                   dir="ltr"
                 />
-                <Lock className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>

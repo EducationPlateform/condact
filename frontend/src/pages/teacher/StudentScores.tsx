@@ -21,7 +21,7 @@ const StudentScores: React.FC = () => {
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        const response = await api.get("/admin/scores");
+        const response = await api.get("scores/all");
         if (response.data.success && response.data.data) {
           setScores(response.data.data);
         }

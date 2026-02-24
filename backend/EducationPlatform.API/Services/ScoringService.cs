@@ -29,14 +29,27 @@ public class ScoringService : IScoringService
             var questions = JsonSerializer.Deserialize<List<QuestionDto>>(questionsJson) ?? new List<QuestionDto>();
             decimal totalScore = 0;
 
-            foreach (var question in questions)
+            for (int i = 0; i < questions.Count; i++)
             {
-                if (!answers.ContainsKey(question.Id))
+                var question = questions[i];
+                var indexKey = i.ToString();
+                
+                // Try to find the answer by Question ID first, then by its index string
+                object? answer = null;
+                if (!string.IsNullOrEmpty(question.Id) && answers.ContainsKey(question.Id))
+                {
+                    answer = answers[question.Id];
+                }
+                else if (answers.ContainsKey(indexKey))
+                {
+                    answer = answers[indexKey];
+                }
+
+                if (answer == null)
                 {
                     continue;
                 }
 
-                var answer = answers[question.Id];
                 var isCorrect = false;
 
                 if (question.Type == QuestionType.MultipleChoice || question.Type == QuestionType.TrueFalse)
@@ -72,7 +85,8 @@ public class ScoringService : IScoringService
 
                 if (isCorrect)
                 {
-                    totalScore += question.Points;
+                    // Ensure we award at least 1 point if points is not set, to avoid zero total
+                    totalScore += question.Points > 0 ? question.Points : 1;
                 }
             }
 

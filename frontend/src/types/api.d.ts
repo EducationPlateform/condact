@@ -95,6 +95,7 @@ export interface Score {
   id: string;
   studentId: string | User;
   lectureId: string | Lecture;
+  lectureTitle?: string;
   homeworkScore?: number;
   examScore?: number;
   totalScore: number;

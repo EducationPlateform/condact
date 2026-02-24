@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowRight,
   Plus,
@@ -12,6 +12,7 @@ import {
   Clock,
   X,
   Image as ImageIcon,
+  ArrowLeft,
 } from "lucide-react";
 import { useParams, useSearchParams } from "react-router-dom";
 import TeacherLayout from "@/components/layouts/TeacherLayout";
@@ -49,6 +50,7 @@ interface Question {
 const HomeworkEditor = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const lectureIdParam = searchParams.get("lectureId");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -60,7 +62,8 @@ const HomeworkEditor = () => {
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [activeQuestionForImage, setActiveQuestionForImage] = useState<number | null>(null);
 
-  const [assignmentType, setAssignmentType] = useState<"homework" | "exam">("homework");
+  const isExamRoute = location.pathname.includes("/teacher/exams");
+  const [assignmentType, setAssignmentType] = useState<"homework" | "exam">(isExamRoute ? "exam" : "homework");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -85,7 +88,6 @@ const HomeworkEditor = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        // setFetching(true); // This variable is not defined, removed.
         // Fetch groups for lecture selection
         const groupsData = await groupService.getAll();
         setGroups(groupsData);
@@ -153,7 +155,6 @@ const HomeworkEditor = () => {
       } catch (error) {
         console.error("Initialization failed:", error);
       } finally {
-        // setFetching(false); // This variable is not defined, removed.
       }
     };
     init();
@@ -588,6 +589,7 @@ const HomeworkEditor = () => {
                   try {
                     setLoading(true);
                     const apiQuestions: ApiQuestion[] = questions.map(q => ({
+                      id: q.id.toString(), // Ensure ID is passed to backend
                       question: q.text,
                       type: 'multiple-choice',
                       options: q.options,
@@ -646,7 +648,7 @@ const HomeworkEditor = () => {
                 }}
               >
                 {loading ? "جاري الحفظ..." : "تأكيد وحفظ التكليف"}
-                <ArrowRight className="h-6 w-6" />
+                <ArrowLeft className="h-6 w-6" />
               </Button>
               <Button
                 variant="ghost"

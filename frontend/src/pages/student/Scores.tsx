@@ -18,7 +18,7 @@ const Scores = () => {
 
         const fetchScores = async () => {
             try {
-                const response = await api.get("/admin/scores", { signal });
+                const response = await api.get("scores", { signal });
                 if (response.data.success && response.data.data) {
                     setScores(response.data.data);
                 }
@@ -79,9 +79,9 @@ const Scores = () => {
                                     {scores.length > 0 ? (
                                         scores.map((score) => {
                                             const scoreId = score.id || (score as any)._id;
-                                            const lectureTitle = typeof score.lectureId === "object"
+                                            const lectureTitle = score.lectureTitle || (typeof score.lectureId === "object"
                                                 ? score.lectureId.title
-                                                : "—";
+                                                : "—");
 
                                             return (
                                                 <tr

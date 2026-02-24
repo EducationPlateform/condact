@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
     Plus,
     Search,
@@ -49,7 +49,11 @@ const TeacherHomeworks: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
     const { toast } = useToast();
+
+    const isExamPage = location.pathname.includes("/teacher/exams");
+    const pageType = isExamPage ? "exam" : "homework";
 
     const [selectedGrade, setSelectedGrade] = useState("all");
 
@@ -153,9 +157,10 @@ const TeacherHomeworks: React.FC = () => {
     };
 
     const filteredAssignments = assignments.filter((a) => {
+        const matchesType = a.type === pageType;
         const matchesSearch = a.title.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesGrade = selectedGrade === "all" || a.grade === selectedGrade;
-        return matchesSearch && matchesGrade;
+        return matchesType && matchesSearch && matchesGrade;
     });
 
     return (
@@ -193,18 +198,18 @@ const TeacherHomeworks: React.FC = () => {
                     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                         <div>
                             <h1 className="text-3xl font-extrabold text-gray-900 font-amin">
-                                إدارة التكليفات والواجبات
+                                {isExamPage ? "إدارة الامتحانات" : "إدارة الواجبات"}
                             </h1>
                             <p className="text-gray-500">
-                                تنظيم ومتابعة الواجبات والاختبارات المنزلية لطلابك
+                                {isExamPage ? "تنظيم ومتابعة الامتحانات الشهرية والتجريبية لطلابك" : "تنظيم ومتابعة الواجبات والاختبارات المنزلية لطلابك"}
                             </p>
                         </div>
                         <Button
-                            onClick={() => navigate("/teacher/homework/new")}
+                            onClick={() => navigate(isExamPage ? "/teacher/exams/new" : "/teacher/homework/new")}
                             className="h-12 gap-2 rounded-2xl bg-primary px-8 text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-105"
                         >
                             <Plus className="h-5 w-5" />
-                            إضافة تكليف جديد
+                            {isExamPage ? "إضافة امتحان جديد" : "إضافة واجب جديد"}
                         </Button>
                     </div>
 
@@ -212,7 +217,7 @@ const TeacherHomeworks: React.FC = () => {
                     <div className="relative">
                         <Search className="absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                         <Input
-                            placeholder="البحث عن تكليف بالاسم..."
+                            placeholder={isExamPage ? "البحث عن امتحان بالاسم..." : "البحث عن واجب بالاسم..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="h-16 rounded-3xl border-none bg-white pr-14 text-lg shadow-sm focus-visible:ring-primary/20"
@@ -312,11 +317,11 @@ const TeacherHomeworks: React.FC = () => {
                             <h3 className="mb-2 text-2xl font-bold text-gray-900">لا توجد تكليفات</h3>
                             <p className="mb-10 text-gray-500 max-w-sm">لم تقم بإضافة أي واجبات أو تكليفات منزلية لهذه المجموعة بعد</p>
                             <Button
-                                onClick={() => navigate("/teacher/homework/new")}
+                                onClick={() => navigate(isExamPage ? "/teacher/exams/new" : "/teacher/homework/new")}
                                 className="h-14 gap-2 rounded-2xl bg-primary px-10 text-lg font-bold shadow-xl shadow-primary/20"
                             >
                                 <Plus className="h-5 w-5" />
-                                ابدأ بإضافة أول تكليف
+                                {isExamPage ? "ابدأ بإضافة أول امتحان" : "ابدأ بإضافة أول واجب"}
                             </Button>
                         </div>
                     )}

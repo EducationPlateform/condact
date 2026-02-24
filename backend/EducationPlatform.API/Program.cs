@@ -14,9 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Configure dynamic port for Render
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://*:{port}");
+// Configure dynamic port (Default to 5077 for local development to match frontend proxy)
+var envPort = Environment.GetEnvironmentVariable("PORT");
+var port = envPort ?? "5077";
+
+// Use "localhost" locally for a nicer browser experience, but "*" in production for Render
+var host = string.IsNullOrEmpty(envPort) ? "localhost" : "*";
+builder.WebHost.UseUrls($"http://{host}:{port}");
 
 // Increase multipart body size limit for video uploads (e.g., 500MB)
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
